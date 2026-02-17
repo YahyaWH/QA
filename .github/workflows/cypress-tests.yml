@@ -1,0 +1,92 @@
+name: Cypress E2E Tests - QA Automation
+
+on:
+  push:
+    branches: [main, develop]
+  schedule:
+    # Daily at 8:00 AM UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    # Manual trigger
+
+jobs:
+  cypress-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          headed: false
+          config-file: cypress.config.ts
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+          TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+        continue-on-error: true
+
+      - name: Generate artifact URLs
+        if: always()
+        run: npx tsx cypress/scripts/generate-artifact-urls.ts
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Generate test report
+        if: always()
+        run: npx tsx cypress/scripts/generate-report.ts
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Upload artifacts to Drive & results to Google Sheets
+        if: always()
+        run: npx tsx cypress/scripts/upload-to-sheets.ts
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+
+      - name: Upload Cypress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-results-${{ github.run_id }}
+          path: |
+            cypress/videos
+            cypress/screenshots
+            cypress/results
+          retention-days: 30
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "### Cypress Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "cypress/results/sheets-report.json" ]; then
+            TOTAL=$(cat cypress/results/sheets-report.json | jq '.summary.totalTests')
+            PASSED=$(cat cypress/results/sheets-report.json | jq '.summary.passed')
+            FAILED=$(cat cypress/results/sheets-report.json | jq '.summary.failed')
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "Full results available in Google Sheets" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View Artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,35 @@
+{
+  "users": {
+    "validUser": {
+      "email": "test@example.com",
+      "password": "Password123!"
+    },
+    "adminUser": {
+      "email": "admin@example.com",
+      "password": "Admin123!"
+    }
+  },
+  "transactions": {
+    "expense": {
+      "amount": 50.0,
+      "category": "Groceries",
+      "description": "Weekly groceries",
+      "type": "expense",
+      "date": "2026-02-12"
+    },
+    "income": {
+      "amount": 3000.0,
+      "category": "Salary",
+      "description": "Monthly salary",
+      "type": "income",
+      "date": "2026-02-01"
+    }
+  },
+  "budgets": {
+    "monthly": {
+      "name": "Monthly Budget",
+      "amount": 2000.0,
+      "period": "monthly"
+    }
+  }
+}

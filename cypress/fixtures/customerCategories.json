@@ -1,0 +1,100 @@
+{
+  "defaultCategories": [
+    {
+      "name": "Property Collection",
+      "description": "Property-specific waste container emptying customer"
+    },
+    {
+      "name": "Waste Reception",
+      "description": "Waste reception customer at facilities"
+    }
+  ],
+  "additionalCategories": [
+    {
+      "name": "Hybrid",
+      "description": "Customer using both collection and reception services"
+    },
+    {
+      "name": "Secondary Responsibility",
+      "description": "Customer under secondary municipal responsibility"
+    },
+    {
+      "name": "Municipal Responsibility",
+      "description": "Customer under statutory municipal waste management responsibility"
+    },
+    {
+      "name": "Market-Based",
+      "description": "Customer under market-based pricing and services"
+    },
+    {
+      "name": "One-Off Service",
+      "description": "Temporary customer for single service events"
+    }
+  ],
+  "newCategory": {
+    "name": "[TEST] Custom Category",
+    "description": "[TEST] Category created by automated testing"
+  },
+  "customers": {
+    "propertyOnly": {
+      "id": "test-property-customer",
+      "name": "[TEST] Property Only Corp",
+      "businessId": "1234567-8",
+      "expectedCategories": ["Property Collection"],
+      "weighbridgeAccess": false
+    },
+    "receptionOnly": {
+      "id": "test-reception-customer",
+      "name": "[TEST] Reception Services Ltd",
+      "businessId": "2345678-9",
+      "expectedCategories": ["Waste Reception"],
+      "weighbridgeAccess": true
+    },
+    "hybrid": {
+      "id": "test-hybrid-customer",
+      "name": "[TEST] Hybrid Construction Co",
+      "businessId": "3456789-0",
+      "expectedCategories": ["Property Collection", "Waste Reception"],
+      "weighbridgeAccess": true
+    },
+    "municipal": {
+      "id": "test-municipal-customer",
+      "name": "[TEST] Municipal Services Oy",
+      "businessId": "4567890-1",
+      "expectedCategories": ["Municipal Responsibility"],
+      "weighbridgeAccess": false
+    },
+    "secondaryResponsibility": {
+      "id": "test-secondary-customer",
+      "name": "[TEST] Secondary Resp AB",
+      "businessId": "5678901-2",
+      "expectedCategories": ["Secondary Responsibility"],
+      "weighbridgeAccess": false
+    },
+    "highBilling": {
+      "id": "test-high-billing-customer",
+      "name": "[TEST] High Volume Waste Co",
+      "businessId": "6789012-3",
+      "annualBillingTotal": 2500,
+      "expectedCategories": ["Municipal Responsibility"],
+      "billingThresholdExceeded": true
+    },
+    "oneOff": {
+      "id": "test-oneoff-customer",
+      "name": "[TEST] Temporary Cleanup Oy",
+      "businessId": "7890123-4",
+      "expectedCategories": ["One-Off Service"],
+      "weighbridgeAccess": false
+    }
+  },
+  "billingThreshold": 2000,
+  "services": {
+    "propertyServices": ["Container Emptying", "Scheduled Collection", "Property Waste Pickup"],
+    "receptionServices": ["Weighbridge Entry", "Facility Drop-off", "Commercial Waste Reception"],
+    "commercialServices": [
+      "Commercial Waste Reception",
+      "Bulk Disposal",
+      "Hazardous Waste Handling"
+    ]
+  }
+}

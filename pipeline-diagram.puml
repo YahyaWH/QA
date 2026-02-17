@@ -1,0 +1,188 @@
+@startuml CypressE2EPipeline
+
+' ============================================================
+'  GENERAL-PURPOSE CYPRESS E2E TESTING PIPELINE
+'  Each FR-XXX folder is plug-and-play: add a folder,
+'  page object, and helper - the pipeline picks it up.
+' ============================================================
+
+skinparam backgroundColor #FEFEFE
+skinparam shadowing true
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+skinparam rectangle {
+  RoundCorner 15
+  FontSize 12
+}
+
+skinparam package {
+  BackgroundColor #F4F6FA
+  BorderColor #7886A0
+  FontSize 14
+  FontStyle bold
+  RoundCorner 10
+}
+
+skinparam database {
+  BackgroundColor #FFF8E1
+  BorderColor #F9A825
+}
+
+skinparam cloud {
+  BackgroundColor #E3F2FD
+  BorderColor #1E88E5
+}
+
+skinparam collections {
+  BackgroundColor #F3E5F5
+  BorderColor #8E24AA
+}
+
+skinparam card {
+  BackgroundColor #FFF3E0
+  BorderColor #EF6C00
+  RoundCorner 8
+}
+
+skinparam arrow {
+  Color #455A64
+  Thickness 2
+}
+
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #FBC02D
+  FontSize 11
+}
+
+title <font size=22><b>Cypress E2E Testing Pipeline</b></font>\n<font size=14 color="#666">Generalized architecture - each FR-XXX module is plug-and-play</font>
+
+' ==================== STAGE 1: CONFIGURATION ====================
+
+package "Stage 1: Configuration & Environment\n//Defines credentials, URLs, tooling, and//\n//Cypress runtime settings before anything runs.//" as S1 #EDE7F6 {
+
+  rectangle "**.env**\nCredentials, base URL,\nGoogle Sheets config" as ENV #D1C4E9
+  rectangle "**cypress.config.ts**\nBase URL, viewport, retries,\nreporter, video, node events" as CFG #D1C4E9
+  rectangle "**tsconfig.json**\nStrict mode, path aliases\n@pages @support @fixtures" as TS #D1C4E9
+  rectangle "**ESLint + Prettier**\nCode quality and\nformatting rules" as LINT #D1C4E9
+
+  ENV -right-> CFG : dotenv\nloads
+  CFG -right-> TS
+  TS -right-> LINT
+}
+
+' ==================== STAGE 2: FRAMEWORK BOOTSTRAP ====================
+
+package "Stage 2: Framework Bootstrap\n//Initializes global hooks, custom commands,//\n//and the test-context collector every test relies on.//" as S2 #E8F5E9 {
+
+  rectangle "**e2e.ts**\nGlobal hooks: beforeEach/afterEach\nconsole capture, network intercept,\nTestContext lifecycle" as E2E #C8E6C9
+  rectangle "**commands.ts**\nCustom commands:\ncy.login(), cy.stepLog(),\ncy.clickAndLog(), etc." as CMD #C8E6C9
+  rectangle "**test-context.ts**\nSingleton manager: collects\nsteps, logs, network, DOM\nper test at runtime" as CTX #C8E6C9
+
+  E2E --> CMD : imports
+  E2E --> CTX : initializes
+}
+
+' ==================== STAGE 3: ABSTRACTION (PLUG-AND-PLAY) ====================
+
+package "Stage 3: Abstraction Layer  //Plug-and-Play//\n//Reusable Page Objects, helpers, and fixtures//\n//so tests stay DRY and new features slot right in.//" as S3 #E3F2FD {
+
+  package "Page Objects\npage-objects/" as PO #BBDEFB {
+    collections "**{FeatureName}Page.ts**\nOne POM per feature area\nSelectors, actions, assertions" as POM
+  }
+
+  package "Helpers\nhelpers/" as HL #BBDEFB {
+    collections "**{feature}Helpers.ts**\nShared utilities per domain\nSession login, navigation, setup" as HLP
+  }
+
+  package "Fixtures\nfixtures/" as FX #BBDEFB {
+    collections "**{feature}Data.json**\nTest data files\nProfiles, search terms, expected values" as FIX
+  }
+
+  POM -right-> HLP : uses
+  HLP -right-> FIX : loads
+}
+
+note bottom of S3
+  **Plug-and-Play:** To add a new feature (FR-XXX):
+  1. Create a Page Object: **{FeatureName}Page.ts**
+  2. Create a Helper: **{feature}Helpers.ts**
+  3. Add fixture data: **{feature}Data.json**
+  4. Add test specs: **cypress/e2e/FR-XXX/*.cy.ts**
+  The pipeline auto-discovers and processes everything.
+end note
+
+' ==================== STAGE 4: TEST EXECUTION ====================
+
+package "Stage 4: Test Execution\n//Runs every discovered FR spec file against//\n//the staging app in an isolated, parallel manner.//" as S4 #FFF3E0 {
+
+  card "**FR-001**\ne2e/authentication/" as FR1 #FFE0B2
+  card "**FR-020**\ne2e/FR-020/" as FR20 #FFE0B2
+  card "  ...  " as DOTS #FFF3E0
+  card "**FR-XXX**\ne2e/{feature}/" as FRN #FFE0B2
+
+  FR1 -right[hidden]-> FR20
+  FR20 -right[hidden]-> DOTS
+  DOTS -right[hidden]-> FRN
+}
+
+note bottom of S4
+  Each **FR-{ID}-{NNN}.cy.ts** file = one test case.
+  Tests use Page Objects + Helpers.
+  Cypress runs all discovered specs automatically.
+end note
+
+' ==================== STAGE 5: RESULTS COLLECTION ====================
+
+package "Stage 5: Artifacts & Results\n//Captures raw evidence from every test: JSON reports,//\n//runtime context, video recordings, and screenshots.//" as S5 #FCE4EC {
+
+  database "**Mochawesome JSON**\nresults/mochawesome/*.json\nOne per spec: status, duration, errors" as MOCH #F8BBD0
+  database "**Test Context JSON**\nresults/contexts/*.json\nSteps, console logs, network, DOM" as TCTX #F8BBD0
+  database "**Videos (MP4)**\nvideos/*-PASSED|FAILED.mp4\nRecording per spec, auto-renamed" as VID #F8BBD0
+  database "**Screenshots (PNG)**\nscreenshots/FAILED-*.png\nAuto-captured on test failure" as SCRN #F8BBD0
+
+  MOCH -right[hidden]-> TCTX
+  TCTX -right[hidden]-> VID
+  VID -right[hidden]-> SCRN
+}
+
+' ==================== STAGE 6: REPORT PIPELINE ====================
+
+package "Stage 6: Report Generation & Upload\n//Merges all raw artifacts into one unified report,//\n//then pushes a formatted spreadsheet to Google Sheets.//" as S6 #E8EAF6 {
+
+  rectangle "**generate-report.ts**\nMerges Mochawesome +\nTest Contexts into one\nunified report JSON" as GEN #C5CAE9
+  rectangle "**test-reporter.ts**\nFlattens suites, matches\nFR IDs via filename regex,\ngroups by FR number" as RPT #C5CAE9
+  rectangle "**sheets-report.json**\nUnified output: all tests\ngrouped by FR, with full\nmetadata and steps" as JSON #C5CAE9
+  rectangle "**upload-to-sheets.ts**\nAuthenticates via Google\nService Account, pushes\nformatted data per FR sheet" as UPL #C5CAE9
+
+  GEN --> RPT : uses
+  RPT --> JSON : produces
+  JSON --> UPL : consumed by
+}
+
+cloud "**Google Sheets**\nFormatted report:\nper-FR tabs, conditional\ncoloring, filters" as GSHEET
+
+' ==================== STAGE 7: CI/CD ====================
+
+package "Stage 7: CI/CD  (GitHub Actions)\n//Orchestrates the entire pipeline automatically//\n//on push, schedule, or manual trigger.//" as S7 #EFEBE9 {
+
+  rectangle "**Triggers**\npush (main/develop)\ncron (daily)\nmanual dispatch" as TRIG #D7CCC8
+  rectangle "**Workflow Pipeline**\n1. Checkout and setup\n2. npm ci\n3. Cypress run (Chrome)\n4. Generate report\n5. Upload to Sheets\n6. Archive artifacts" as WF #D7CCC8
+  rectangle "**Artifacts**\nVideos, screenshots,\nresults uploaded to\nGitHub (30-day retention)" as ART #D7CCC8
+
+  TRIG --> WF
+  WF --> ART
+}
+
+' ==================== CONNECTIONS BETWEEN STAGES ====================
+
+S1 -down-> S2 : Config loaded into\nCypress runtime
+S2 -down-> S3 : Commands and context\navailable to all tests
+S3 -down-> S4 : Tests import POMs,\nhelpers, and fixtures
+S4 -down-> S5 : Cypress emits\nartifacts per spec
+S5 -down-> S6 : Raw results merged\nand structured
+UPL -down-> GSHEET : Formatted upload\nvia Sheets API
+S7 -left-> S1 : CI triggers\nfull pipeline
+
+@enduml

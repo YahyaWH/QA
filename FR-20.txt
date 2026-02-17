@@ -1,0 +1,195 @@
+Customer List View - Free Text Search with Dynamic Filtering - Functional Requirements
+Reference: PD-63 - "3.1.35 Free text search for customers"  
+View URL: 
+WasteHero Platform    
+FIGMA: Customers - List view
+
+Summary
+Add free-text search functionality to the Customer List View, allowing users to quickly filter customers by typing partial matches across configurable fields. The table updates in real-time as users type, showing matching results instantly.
+
+Design Constraints
+Platform Consistency
+MUST use the existing search component pattern used elsewhere in the platform
+
+Search behavior and UI must match the standardized approach across all list views
+
+Reference existing search implementations for consistency
+
+Search Scope Selection
+Search scope selector is part of the search component
+
+Users can configure which fields are included in the search
+
+Search scope persists per user session
+
+If no fields are selected, search ALL available fields by default
+
+Default search scope covers most common fields
+
+Search Component
+What
+Add an intelligent search bar that filters the customer table in real-time as users type, allowing quick customer lookup across multiple configurable fields.
+
+Characteristics
+Real-time table filtering (appears after 2+ characters)
+
+Debounced API calls (300ms delay)
+
+Configurable search scope (which fields to search)
+
+Match highlighting in table results
+
+Loading and empty states
+
+Clear button to reset search
+
+Search Input Component
+Location: Top toolbar, left side (before filter button)
+
+Visual States:
+
+Default/Empty
+
+Active/Typing (table updates in real-time)
+
+Clear button visible when search has content
+
+Search Scope Selector
+Purpose: Allow users to choose which fields to include in their search
+
+Note: Based on customer feedback: "Customer does not want to be able to search in 'everything' but they want to be able to choose what they are searching in."
+
+However: If user deselects all fields or doesn't configure scope, system defaults to searching ALL available fields.
+
+Location: Dropdown next to search icon
+
+Available Fields:
+
+Customer Name
+
+Business ID / Tax ID (Y-tunnus)
+
+Personal Identity Code (Hetu)
+
+Phone Number
+
+Email Address
+
+Street Address
+
+Billing Address
+
+Invoice Number
+
+Customer Number
+
+Custom Fields
+
+Default Selected Fields:
+
+Customer Name
+
+Business ID / Tax ID
+
+Personal Identity Code (Hetu)
+
+Phone Number
+
+Email Address
+
+Street Address
+
+Scope Controls:
+
+Individual checkboxes for each field
+
+Select All button
+
+Deselect All button
+
+Reset to Defaults button
+
+Scope Indicator in Search Input:
+
+Default state: No badge shown
+
+Custom scope with fields selected: Shows count badge (e.g., "5 fields")
+
+All fields deselected: Shows "All fields" badge
+
+Warning when no fields selected: "⚠️ No fields selected - will search all available fields"
+
+Search Scope Logic:
+
+Default State (First Use):
+
+Default fields pre-selected
+
+No badge shown in search input
+
+User Selects Specific Fields:
+
+Only selected fields are searched
+
+Badge shows field count
+
+User Deselects All Fields:
+
+System automatically searches ALL available fields
+
+Badge shows "All fields"
+
+Warning message displayed
+
+Reset to Defaults:
+
+Returns to default selected fields
+
+Badge removed
+
+Functionality
+Search Behavior
+Minimum Characters: 2 characters before triggering search
+
+Debouncing: 300ms delay after last keystroke
+
+Matching: Case-insensitive, partial matches anywhere in field
+
+Multiple Words: Space-separated terms treated as AND
+
+Special Characters: Support hyphens, dots, spaces (e.g., "010150-123A" = "010150123A")
+
+Table Updates
+Table filters in real-time as user types
+
+Show loading indicator during search (after 150ms)
+
+Display result count: "Showing X customers"
+
+Empty state when no results: "No customers found matching '[search term]'"
+
+Match Highlighting
+Highlight matched text in table cells with yellow/highlight color
+
+Example: Searching "matti" highlights "Matti" in "Matti Meskälläinen"
+
+Clear Button
+Appears when search input has content
+
+Clears search and returns to full table
+
+Maintains any active filters from FR-12
+
+Interaction with Filters
+Search works with active filters (both conditions must match)
+
+Search chip displays alongside filter chips: [Search: "matti" ×]
+
+Clearing search keeps filters, clearing filters keeps search
+
+Scope Persistence
+Selected search scope saved in browser session storage
+
+Persists during user session only
+
+Resets to defaults on new browser session
