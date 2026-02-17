@@ -60,7 +60,8 @@ jobs:
         run: npx tsx cypress/scripts/generate-html-report.ts
 
       - name: Upload artifacts to Drive & results to Google Sheets
-        if: always() && secrets.GOOGLE_CREDENTIALS_JSON != ''
+        if: always()
+        continue-on-error: true
         run: npx tsx cypress/scripts/upload-to-sheets.ts
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
