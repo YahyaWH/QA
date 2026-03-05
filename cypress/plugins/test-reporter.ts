@@ -1,14 +1,14 @@
 /**
  * Test Reporter Plugin
- * Processes Mochawesome results and test contexts to generate Google Sheets report
+ * Processes Mochawesome results and test contexts to generate unified test report
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const dayjs = require('dayjs');
+import dayjs from 'dayjs';
 import type {
   TestResult,
+  EnrichedTestResult,
   TestStep,
   MochawesomeResult,
   MochawesomeSuite,
@@ -91,9 +91,9 @@ export function loadTestContexts(contextDir: string): TestContextMaps {
  */
 export function extractTestId(filePath: string, title: string): string {
   // Try to extract from file path first (e.g., FR-020-001.cy.ts)
-  const fileMatch = filePath.match(/FR-(\d+)-(\d+)\.cy\.ts/);
+  const fileMatch = filePath.match(/(FR|PD)-(\d+)-(\d+)\.cy\.ts/);
   if (fileMatch) {
-    return `FR-${fileMatch[1]}-${fileMatch[2]}`;
+    return `${fileMatch[1]}-${fileMatch[2]}-${fileMatch[3]}`;
   }
 
   // Try to extract from title (e.g., "[FR020-TC-001]")
@@ -155,8 +155,8 @@ export function processResults(
   mochawesomeResults: MochawesomeResult[],
   contexts: TestContextMaps,
   artifactBaseUrl?: string
-): TestResult[] {
-  const results: TestResult[] = [];
+): EnrichedTestResult[] {
+  const results: EnrichedTestResult[] = [];
 
   for (const report of mochawesomeResults) {
     for (const suite of report.results) {
@@ -169,15 +169,16 @@ export function processResults(
         const filePath = test.file || '';
         const testId = extractTestId(filePath, test.fullTitle || test.title);
         const frNumber = extractFrNumber(testId);
-        const testNumberMatch = testId.match(/FR-\d+-(\d+)/);
+        const testNumberMatch = testId.match(/(?:FR|PD)-\d+-(\d+)/);
         const testNumber = testNumberMatch ? testNumberMatch[1] : '000';
 
         // Get context: try by ID first, then fall back to title-based lookup
         const context = contexts.byId.get(testId) || contexts.byTitle.get(test.title) || undefined;
 
         // Determine status
-        const status: 'PASSED' | 'FAILED' =
-          test.state === 'passed' || test.pass ? 'PASSED' : 'FAILED';
+        const status: 'PASSED' | 'FAILED' | 'SKIPPED' =
+          test.state === 'passed' || test.pass ? 'PASSED' :
+          test.state === 'pending' || test.pending ? 'SKIPPED' : 'FAILED';
 
         // Format steps -- merge manual + auto, prefer manual when overlapping
         let stepsToReproduce = 'No steps recorded';
@@ -222,9 +223,10 @@ export function processResults(
 
         // Error classification (only for failed tests)
         let errorClassification = '';
+        let rawClassification = null;
         if (status === 'FAILED' && errorStack) {
-          const classification = classifyError(context, errorStack);
-          errorClassification = formatClassification(classification);
+          rawClassification = classifyError(context, errorStack);
+          errorClassification = formatClassification(rawClassification);
         }
 
         // DOM state at failure
@@ -239,7 +241,10 @@ export function processResults(
         const browser = process.env.BROWSER || 'Chrome';
         const viewport = '1280x720';
 
-        const result: TestResult = {
+        // Merge steps for structured storage
+        const mergedSteps = context?.steps ? mergeSteps(context.steps) : [];
+
+        const result: EnrichedTestResult = {
           testId,
           frNumber,
           testNumber,
@@ -259,6 +264,12 @@ export function processResults(
           environment,
           browser,
           viewport,
+          // Structured data for MongoDB (underscore-prefixed to avoid serialization clashes)
+          _classification: rawClassification,
+          _steps: mergedSteps,
+          _consoleLogs: context?.consoleLogs,
+          _networkRequests: context?.networkRequests,
+          _domState: context?.domState,
         };
 
         results.push(result);

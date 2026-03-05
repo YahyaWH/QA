@@ -41,32 +41,47 @@ jobs:
           TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
         continue-on-error: true
 
-      - name: Generate artifact URLs
-        if: always()
-        run: npx tsx cypress/scripts/generate-artifact-urls.ts
-        env:
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-
       - name: Generate test report
         if: always()
         run: npx tsx cypress/scripts/generate-report.ts
         env:
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          QA_API_URL: ${{ secrets.QA_API_URL }}
 
       - name: Generate HTML report
         if: always()
         run: npx tsx cypress/scripts/generate-html-report.ts
 
-      - name: Upload artifacts to Drive & results to Google Sheets
+      - name: Send Slack notifications
         if: always()
-        continue-on-error: true
-        run: npx tsx cypress/scripts/upload-to-sheets.ts
+        run: npx tsx cypress/scripts/notify-slack.ts
         env:
-          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          SLACK_BACKEND_GROUP_ID: ${{ secrets.SLACK_BACKEND_GROUP_ID }}
+          SLACK_FRONTEND_GROUP_ID: ${{ secrets.SLACK_FRONTEND_GROUP_ID }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          QA_API_URL: ${{ secrets.QA_API_URL }}
+        continue-on-error: true
+
+      - name: Run Mark (audit agent)
+        if: always()
+        run: npx tsx cypress/scripts/gc/mark.ts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          WASTEHERO_GITHUB_TOKEN: ${{ secrets.WASTEHERO_GITHUB_TOKEN }}
+          WASTEHERO_REPO: ${{ secrets.WASTEHERO_REPO }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          QA_API_URL: ${{ secrets.QA_API_URL }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          AGENT_MODEL: claude-sonnet-4-6
+        continue-on-error: true
 
       - name: Upload Cypress artifacts
         if: always()

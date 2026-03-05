@@ -1,7 +1,7 @@
 {
-  "name": "finance-tracker-cypress-tests",
+  "name": "wastehero-cypress-tests",
   "version": "1.0.0",
-  "description": "End-to-end Cypress tests for Finance Tracker application",
+  "description": "End-to-end Cypress tests for WasteHero application",
   "main": "index.js",
   "scripts": {
     "cypress:open": "cypress open --config chromeWebSecurity=false",
@@ -15,25 +15,27 @@
     "test:smoke": "cypress run --env grepTags=@smoke",
     "test:regression": "cypress run --env grepTags=@regression",
     "test:critical": "cypress run --env grepTags=@critical",
-    "sheets:generate": "npx tsx cypress/scripts/generate-report.ts",
-    "sheets:upload": "npx tsx cypress/scripts/upload-to-sheets.ts",
-    "sheets:artifacts": "npx tsx cypress/scripts/generate-artifact-urls.ts",
-    "sheets:full": "npm run sheets:generate && npm run sheets:upload",
+    "report:generate": "npx tsx cypress/scripts/generate-report.ts",
     "report:html": "npx tsx cypress/scripts/generate-html-report.ts",
-    "report:full": "npm run sheets:generate && npm run report:html",
+    "report:full": "npm run report:generate && npm run report:html",
     "test:pd042": "cypress run --spec \"cypress/e2e/PD-042/*.cy.ts\" --browser chrome",
     "test:pd042:html": "npm run test:pd042 || true && npm run report:full",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "notify:slack": "npx tsx cypress/scripts/notify-slack.ts",
+    "notify:slack:dry": "SLACK_BOT_TOKEN= npx tsx cypress/scripts/notify-slack.ts",
+    "notify:slack:mock": "npx tsx -e \"require('fs').copyFileSync('cypress/results/mock-sheets-report.json','cypress/results/sheets-report.json')\" && npx tsx cypress/scripts/notify-slack.ts",
+    "gc:mark": "npx tsx cypress/scripts/gc/mark.ts",
+    "gc:sweep": "npx tsx cypress/scripts/gc/sweep.ts"
   },
   "keywords": [
     "cypress",
     "e2e",
     "testing",
-    "finance-tracker"
+    "wastehero"
   ],
   "author": "",
   "license": "ISC",
@@ -46,13 +48,14 @@
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^2.15.1",
-    "googleapis": "^128.0.0",
     "mochawesome": "^7.1.3",
-    "mochawesome-merge": "^4.3.0",
-    "plantuml": "^0.0.2",
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@slack/web-api": "^7.14.1"
   }
 }

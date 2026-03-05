@@ -15,11 +15,6 @@ import { processCommand, resetStepBuffer } from '../plugins/step-logger';
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-// Global before hook - runs once before all tests
-before(() => {
-  cy.log('Starting test suite');
-});
-
 // ***********************************************
 // Automatic Step Capture
 // Intercepts every Cypress command and logs
@@ -92,45 +87,45 @@ beforeEach(function () {
 
   // Strategy 1: Cypress.spec (always available — gives the current spec file)
   const specRelative = Cypress.spec?.relative || Cypress.spec?.name || '';
-  const specMatch = specRelative.match(/FR-(\d+)-(\d+)/);
+  const specMatch = specRelative.match(/(FR|PD)-(\d+)-(\d+)/);
   if (specMatch) {
-    testId = `FR-${specMatch[1]}-${specMatch[2]}`;
+    testId = `${specMatch[1]}-${specMatch[2]}-${specMatch[3]}`;
   }
 
   // Strategy 2: invocationDetails.relativeFile (Cypress-specific, sometimes available)
   if (!testId) {
     // @ts-expect-error - invocationDetails is internal but accessible
     const relFile: string = this.currentTest?.invocationDetails?.relativeFile || '';
-    const relMatch = relFile.match(/FR-(\d+)-(\d+)/);
+    const relMatch = relFile.match(/(FR|PD)-(\d+)-(\d+)/);
     if (relMatch) {
-      testId = `FR-${relMatch[1]}-${relMatch[2]}`;
+      testId = `${relMatch[1]}-${relMatch[2]}-${relMatch[3]}`;
     }
   }
 
   // Strategy 3: Test title (e.g. "[FR020-TC-015] should have actionable rows")
   if (!testId) {
     const title = this.currentTest?.title || '';
-    const titleMatch = title.match(/\[FR(\d+)-TC-(\d+)\]/);
+    const titleMatch = title.match(/\[(FR|PD)(\d+)-TC-(\d+)\]/);
     if (titleMatch) {
-      testId = `FR-${titleMatch[1].padStart(3, '0')}-${titleMatch[2].padStart(3, '0')}`;
+      testId = `${titleMatch[1]}-${titleMatch[2].padStart(3, '0')}-${titleMatch[3].padStart(3, '0')}`;
     }
   }
 
   // Strategy 4: Suite (parent) title (e.g. "FR-020-015: Actionable Rows")
   if (!testId) {
     const suiteTitle = this.currentTest?.parent?.title || '';
-    const suiteMatch = suiteTitle.match(/FR-(\d+)-(\d+)/);
+    const suiteMatch = suiteTitle.match(/(FR|PD)-(\d+)-(\d+)/);
     if (suiteMatch) {
-      testId = `FR-${suiteMatch[1]}-${suiteMatch[2]}`;
+      testId = `${suiteMatch[1]}-${suiteMatch[2]}-${suiteMatch[3]}`;
     }
   }
 
   // Strategy 5: this.currentTest.file (original, rarely works in browser)
   if (!testId) {
     const testFile = this.currentTest?.file || '';
-    const fileMatch = testFile.match(/FR-(\d+)-(\d+)/);
+    const fileMatch = testFile.match(/(FR|PD)-(\d+)-(\d+)/);
     if (fileMatch) {
-      testId = `FR-${fileMatch[1]}-${fileMatch[2]}`;
+      testId = `${fileMatch[1]}-${fileMatch[2]}-${fileMatch[3]}`;
     }
   }
 
@@ -139,9 +134,9 @@ beforeEach(function () {
   // test title to make each context file unique.
   if (!testId) {
     const specName2 = Cypress.spec?.relative || Cypress.spec?.name || '';
-    const frOnlyMatch = specName2.match(/FR-(\d+)/);
+    const frOnlyMatch = specName2.match(/(FR|PD)-(\d+)/);
     if (frOnlyMatch) {
-      const frBase = `FR-${frOnlyMatch[1]}`;
+      const frBase = `${frOnlyMatch[1]}-${frOnlyMatch[2]}`;
       const title = this.currentTest?.title || '';
       // Create a simple numeric hash from the title for uniqueness
       let hash = 0;
@@ -214,9 +209,6 @@ afterEach(function () {
       testContext.setDomState($body.html());
     });
 
-    // Take screenshot on test failure
-    cy.screenshot(`FAILED-${testTitle}`);
-
     // Mark last step as failed
     testContext.addStep('Test failed at this step', { isFailed: true, source: 'auto' });
   }
@@ -229,16 +221,16 @@ afterEach(function () {
   let saveId = contextData.testId;
   if (!saveId) {
     const specName = Cypress.spec?.relative || Cypress.spec?.name || '';
-    const sm = specName.match(/FR-(\d+)-(\d+)/);
+    const sm = specName.match(/(FR|PD)-(\d+)-(\d+)/);
     if (sm) {
-      saveId = `FR-${sm[1]}-${sm[2]}`;
+      saveId = `${sm[1]}-${sm[2]}-${sm[3]}`;
     }
   }
   if (!saveId) {
     const title = this.currentTest?.title || '';
-    const tm = title.match(/\[FR(\d+)-TC-(\d+)\]/);
+    const tm = title.match(/\[(FR|PD)(\d+)-TC-(\d+)\]/);
     if (tm) {
-      saveId = `FR-${tm[1].padStart(3, '0')}-${tm[2].padStart(3, '0')}`;
+      saveId = `${tm[1]}-${tm[2].padStart(3, '0')}-${tm[3].padStart(3, '0')}`;
     }
   }
   if (!saveId) {

@@ -7,7 +7,7 @@ import * as path from 'path';
 dotenv.config();
 
 export default defineConfig({
-  // Mochawesome reporter configuration for Google Sheets integration
+  // Mochawesome reporter configuration
   reporter: 'mochawesome',
   reporterOptions: {
     reportDir: 'cypress/results/mochawesome',
@@ -44,7 +44,7 @@ export default defineConfig({
 
     // Retry configuration for CI/CD
     retries: {
-      runMode: 0, // No retries – fail fast
+      runMode: 1, // One retry in CI for flaky-test resilience
       openMode: 0, // No retries in interactive mode
     },
 

@@ -1,0 +1,44 @@
+services:
+  mongodb:
+    image: mongo:7
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: wastehero-qa
+
+  qa-api:
+    build: ./api
+    ports:
+      - '3001:3001'
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/wastehero-qa
+      PORT: '3001'
+    depends_on:
+      - mongodb
+
+  # Cloudflare Tunnel — exposes qa-api publicly for:
+  #   - GitHub Actions (report persistence, Mark polling)
+  #   - Slack interactivity webhooks (button clicks)
+  #
+  # Quick-start (no Cloudflare account needed):
+  #   docker compose up
+  #   → Look for "https://xxxx.trycloudflare.com" in the tunnel logs
+  #   → Set that URL as QA_API_URL in .env and GitHub secrets
+  #   → Set {URL}/api/v1/slack/interactions in Slack App Interactivity settings
+  #
+  # Named tunnel (persistent URL, requires `cloudflared tunnel login`):
+  #   1. Create tunnel: cloudflared tunnel create qa-api
+  #   2. Set TUNNEL_TOKEN in .env
+  #   3. Uncomment the command line below and comment out the quick-start one
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://qa-api:3001
+    # For named tunnel with persistent URL, use instead:
+    # command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    depends_on:
+      - qa-api
+
+volumes:
+  mongo-data:

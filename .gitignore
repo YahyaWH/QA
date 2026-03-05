@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# API build output
+api/dist/
+
 # Cypress
 cypress/videos/
 cypress/screenshots/

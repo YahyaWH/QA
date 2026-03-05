@@ -134,7 +134,7 @@ class TestContextManager {
    * Set DOM state (for failures)
    */
   setDomState(html: string): void {
-    // Truncate if too long (limit to 5000 chars for Google Sheets)
+    // Truncate if too long (limit to 5000 chars)
     if (html.length > 5000) {
       this.context.domState = html.substring(0, 5000) + '... (truncated)';
     } else {
@@ -153,7 +153,7 @@ class TestContextManager {
    * Get current context
    */
   getContext(): TestContext {
-    return { ...this.context };
+    return structuredClone(this.context);
   }
 
   /**

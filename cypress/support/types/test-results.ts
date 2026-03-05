@@ -1,6 +1,6 @@
 /**
  * TypeScript interfaces for test results and reporting
- * Used throughout the Google Sheets automation pipeline
+ * Used throughout the test automation pipeline
  */
 
 /**
@@ -66,14 +66,14 @@ export interface TestContext {
 }
 
 /**
- * Complete test result for Google Sheets
+ * Complete test result
  */
 export interface TestResult {
   testId: string; // "FR-020-001"
   frNumber: string; // "FR-020"
   testNumber: string; // "001"
   description: string; // "Search Input Display"
-  status: 'PASSED' | 'FAILED';
+  status: 'PASSED' | 'FAILED' | 'SKIPPED';
   duration: number; // milliseconds
   retryCount: number;
   timestamp: string; // ISO format
@@ -88,13 +88,6 @@ export interface TestResult {
   environment: string; // "GitHub Actions" or "Local"
   browser: string; // "Chrome 120.0"
   viewport: string; // "1280x720"
-}
-
-/**
- * Google Sheets row data
- */
-export interface SheetsRow {
-  values: (string | number)[];
 }
 
 /**
@@ -182,4 +175,17 @@ export interface MochawesomeResult {
  */
 export interface SavedTestContext extends TestContext {
   savedAt: string;
+}
+
+/**
+ * TestResult enriched with structured data for MongoDB persistence.
+ * The flat string fields remain for Slack/HTML consumers;
+ * the structured fields feed the QA API.
+ */
+export interface EnrichedTestResult extends TestResult {
+  _classification?: ErrorClassification | null;
+  _steps?: TestStep[];
+  _consoleLogs?: ConsoleLog[];
+  _networkRequests?: NetworkRequest[];
+  _domState?: string;
 }

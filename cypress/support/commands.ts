@@ -25,51 +25,36 @@ Cypress.Commands.add('login', (email?: string, password?: string) => {
       cy.log('🔐 Performing login...');
       cy.visit('/');
 
-      // Use direct selectors that work on WasteHero
-      cy.get('input[placeholder="Username"]').clear().type(loginEmail);
-      cy.get('input[placeholder="Password"]').clear().type(loginPassword);
-      cy.contains('button', 'Log in').click();
+      // Email input with fallback selectors (combined selector for retry-ability)
+      const emailSelectors = [
+        'input[placeholder="Username"]',
+        '[data-testid="email-input"]',
+        '[data-testid="email"]',
+        'input[type="email"]',
+        'input[name="email"]',
+      ].join(', ');
+      cy.get(emailSelectors).first().clear().type(loginEmail);
 
-      // Try multiple selectors for password input
+      // Password input with fallback selectors
       const passwordSelectors = [
-        'input[placeholder="Password"]', // WasteHero specific
+        'input[placeholder="Password"]',
         '[data-testid="password-input"]',
         '[data-testid="password"]',
         'input[type="password"]',
         'input[name="password"]',
-      ];
+      ].join(', ');
+      cy.get(passwordSelectors).first().clear().type(loginPassword);
 
-      // Find and fill password - uses Cypress retry-ability
-      cy.get('body').then(($body) => {
-        for (const selector of passwordSelectors) {
-          if ($body.find(selector).length > 0) {
-            cy.get(selector).first().clear().type(loginPassword);
-            return;
-          }
-        }
-        throw new Error('Could not find password input field with any known selector');
-      });
-
-      // Try multiple selectors for submit button
+      // Submit button with fallback selectors
       const buttonSelectors = [
-        'button:contains("Log in")', // WasteHero specific
+        'button:contains("Log in")',
         '[data-testid="login-button"]',
         'button[type="submit"]',
         'button:contains("Sign in")',
         'button:contains("Login")',
         'input[type="submit"]',
-      ];
-
-      // Find and click submit button - uses Cypress retry-ability
-      cy.get('body').then(($body) => {
-        for (const selector of buttonSelectors) {
-          if ($body.find(selector).length > 0) {
-            cy.get(selector).first().click();
-            return;
-          }
-        }
-        throw new Error('Could not find login button with any known selector');
-      });
+      ].join(', ');
+      cy.get(buttonSelectors).first().click();
 
       // Wait for navigation away from login page
       cy.url({ timeout: 10000 }).should('not.include', '/login');
@@ -102,7 +87,7 @@ Cypress.Commands.add('shouldBeInteractable', (selector: string) => {
 });
 
 // ***********************************************
-// Step Logging Commands (for Google Sheets reporting)
+// Step Logging Commands
 // ***********************************************
 
 import { testContext } from './test-context';
@@ -156,7 +141,7 @@ declare global {
       /**
        * Custom command to login with email and password
        */
-      login(email: string, password: string): Chainable<void>;
+      login(email?: string, password?: string): Chainable<void>;
 
       /**
        * Custom command to wait for API and verify 200 status
