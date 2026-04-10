@@ -17,12 +17,14 @@
  *   SLACK_BOT_TOKEN         — For Slack thread updates
  *   SLACK_THREAD_CHANNEL    — Channel to post progress to
  *   SLACK_THREAD_TS         — Thread timestamp to reply to
- *   AGENT_MODEL             — Claude model (default: claude-sonnet-4-6)
+ *   SWEEP_MODEL             — Claude model (default: claude-sonnet-4-6)
  */
 
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import * as fs from 'fs';
+import * as path from 'path';
 import Anthropic from '@anthropic-ai/sdk';
 
 import {
@@ -41,9 +43,20 @@ import { slackReply, SLACK_TOOL_DEFINITIONS } from './tools/slack-tools';
 
 const INVESTIGATION_ID = process.env.INVESTIGATION_ID;
 const API_URL = process.env.QA_API_URL || 'http://localhost:3001';
-const MODEL = process.env.AGENT_MODEL || 'claude-sonnet-4-6';
+const MODEL = process.env.SWEEP_MODEL || 'claude-sonnet-4-6';
 const CHANNEL = process.env.SLACK_THREAD_CHANNEL;
 const THREAD_TS = process.env.SLACK_THREAD_TS;
+const PLATFORM_REF_PATH = path.join(process.cwd(), 'onboarding-output/wastehero-platform-reference.md');
+
+// Load the WasteHero platform reference if available — gives the agent
+// accurate knowledge of routes, components, architecture, and UI patterns.
+let PLATFORM_REFERENCE = '';
+try {
+  PLATFORM_REFERENCE = fs.readFileSync(PLATFORM_REF_PATH, 'utf8');
+  console.log(`[sweep] Loaded platform reference (${(PLATFORM_REFERENCE.length / 1024).toFixed(0)} KB)`);
+} catch {
+  console.log('[sweep] Platform reference not found — agent will rely on GitHub search only');
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -84,6 +97,28 @@ async function postProgress(text: string): Promise<void> {
 const SOLUTION_SYSTEM_PROMPT = `You are Sweep, the fix agent for the WasteHero E2E test pipeline (project: Garbage Collection).
 You receive a HIGH-confidence audit finding and must create a minimal fix as a draft PR.
 
+${PLATFORM_REFERENCE ? `
+=== WASTEHERO PLATFORM REFERENCE ===
+Use this reference to understand the application architecture, route structure, UI patterns,
+sidebar navigation, and component hierarchy. This is authoritative — use it to navigate the
+codebase precisely when reading suspect files and crafting fixes.
+
+${PLATFORM_REFERENCE}
+=== END PLATFORM REFERENCE ===
+` : `Architecture context:
+- Frontend: React 18.2 + Vite 5 + TypeScript 5.2
+- UI: Ant Design 5.15 + Styled-components
+- State: Zustand 4.5 + React Context
+- API: GraphQL (Apollo Client 3.7)
+- Routing: React Router v5 (custom RouterFactory)
+- i18n: Transifex
+- Components: ~936 in src/components/ (legacy) + ~728 in src/new-components/ (modern)
+`}
+Architecture notes:
+- The WasteHero backend uses a microservice architecture with a GraphQL API layer
+- Frontend repo is wastehero-frontend-v2 (React 18 + Vite, NOT Next.js)
+- Backend issues may originate in services outside this repo — if the fix requires changes to a backend microservice you don't have access to, SKIP and explain which service likely needs the fix
+
 Tools available:
 - github_get_file: Read files from the repo
 - github_create_branch: Create a fix branch
@@ -92,12 +127,13 @@ Tools available:
 - slack_reply: Post progress and PR link to Slack thread
 
 Process:
-1. Read the suspect file(s)
-2. Determine the minimal change needed
-3. Create branch: fix/{testId}-{short-description}
-4. Apply the fix (fewest lines possible)
-5. Open a DRAFT PR with full context
-6. Post PR link to Slack thread
+1. Consult the Platform Reference to understand the area of the codebase affected (route, component structure, UI patterns)
+2. Read the suspect file(s) — use the Source Structure from the reference to find related files if needed
+3. Determine the minimal change needed
+4. Create branch: fix/{testId}-{short-description}
+5. Apply the fix (fewest lines possible)
+6. Open a DRAFT PR with full context — reference the Platform Reference route/component in the PR description
+7. Post PR link to Slack thread
 
 Safety rules:
 - ONLY modify files from the investigation's suspectFiles
@@ -260,7 +296,7 @@ async function main(): Promise<void> {
   console.log(`Investigation: ${investigation.testId} (${investigation.confidence} ${investigation.category})`);
   console.log(`Suspect files: ${investigation.suspectFiles.map((f) => f.path).join(', ')}`);
 
-  await postProgress(`:broom: Sweep starting for *${investigation.testId}*...`);
+  await postProgress(`Sweep starting for *${investigation.testId}*...`);
 
   const client = new Anthropic();
 
@@ -287,16 +323,16 @@ async function main(): Promise<void> {
         });
       } catch { /* ignore */ }
 
-      await postProgress(`:white_check_mark: Draft PR created: ${result.prUrl}`);
+      await postProgress(`Draft PR created: ${result.prUrl}`);
     } else if (result.status === 'skipped') {
-      await postProgress(`:no_entry_sign: Fix skipped: ${result.reason}`);
+      await postProgress(`Fix skipped: ${result.reason}`);
     } else {
-      await postProgress(`:x: Fix failed: ${result.reason}`);
+      await postProgress(`Fix failed: ${result.reason}`);
     }
   } catch (err) {
     const msg = (err as Error).message;
     console.error('Sweep failed:', msg);
-    await postProgress(`:x: Sweep error: ${msg}`);
+    await postProgress(`Sweep error: ${msg}`);
     process.exit(1);
   }
 

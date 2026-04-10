@@ -18,7 +18,7 @@
  *   QA_API_URL              — QA API base URL (default: http://localhost:3001)
  *   SLACK_BOT_TOKEN         — For Slack thread replies + approval buttons
  *   SLACK_CHANNEL_ID        — Target Slack channel
- *   AGENT_MODEL             — Claude model (default: claude-sonnet-4-6)
+ *   AGENT_MODEL             — Claude model (default: claude-haiku-4-5-20251001)
  *   AGENT_MAX_TOKENS        — Max output tokens (default: 4096)
  *   AGENT_MAX_TOOL_CALLS    — Max tool calls per investigation (default: 10)
  *   AGENT_CONCURRENCY       — Parallel investigations (default: 3)
@@ -54,11 +54,22 @@ const RESULTS_DIR = path.join(process.cwd(), 'cypress/results');
 const REPORT_FILE = path.join(RESULTS_DIR, 'sheets-report.json');
 const THREAD_MAP_FILE = path.join(RESULTS_DIR, 'slack-threads.json');
 const INVESTIGATIONS_DIR = path.join(RESULTS_DIR, 'investigations');
+const PLATFORM_REF_PATH = path.join(process.cwd(), 'onboarding-output/wastehero-platform-reference.md');
 
-const MODEL = process.env.AGENT_MODEL || 'claude-sonnet-4-6';
+// Load the WasteHero platform reference if available — gives the agent
+// accurate knowledge of routes, components, architecture, and UI patterns.
+let PLATFORM_REFERENCE = '';
+try {
+  PLATFORM_REFERENCE = fs.readFileSync(PLATFORM_REF_PATH, 'utf8');
+  console.log(`[mark] Loaded platform reference (${(PLATFORM_REFERENCE.length / 1024).toFixed(0)} KB)`);
+} catch {
+  console.log('[mark] Platform reference not found — agent will rely on GitHub search only');
+}
+
+const MODEL = process.env.AGENT_MODEL || 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = parseInt(process.env.AGENT_MAX_TOKENS || '4096', 10);
 const MAX_TOOL_CALLS = parseInt(process.env.AGENT_MAX_TOOL_CALLS || '10', 10);
-const CONCURRENCY = parseInt(process.env.AGENT_CONCURRENCY || '3', 10);
+const CONCURRENCY = parseInt(process.env.AGENT_CONCURRENCY || '1', 10);
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -165,13 +176,24 @@ You receive structured failure context including:
 - DOM snapshot at failure
 - Screenshot and video links
 
+${PLATFORM_REFERENCE ? `
+=== WASTEHERO PLATFORM REFERENCE ===
+Use this reference to understand the application architecture, route structure, UI patterns,
+sidebar navigation, and component hierarchy. This is authoritative — prefer it over guessing
+when identifying which page/route/component a failure relates to.
+
+${PLATFORM_REFERENCE}
+=== END PLATFORM REFERENCE ===
+` : ''}
+
 Investigation process:
 1. Start with the error classification — this is your pre-triage
-2. Search the WasteHero codebase with GitHub tools
-3. Identify specific file(s) and line(s) responsible
-4. Check recent commits to suspect files
-5. Check historical test results (regression vs flaky vs new)
-6. Assess confidence (HIGH/MEDIUM/LOW)
+2. Cross-reference the failing test's URL/page against the Platform Reference routes to identify the exact component area
+3. Search the WasteHero codebase with GitHub tools — use the Source Structure and route map from the reference to narrow your search
+4. Identify specific file(s) and line(s) responsible
+5. Check recent commits to suspect files
+6. Check historical test results (regression vs flaky vs new)
+7. Assess confidence (HIGH/MEDIUM/LOW)
 
 Your FINAL message must be a JSON object (no markdown fences):
 {
@@ -193,6 +215,7 @@ Re-running tests:
 
 Rules:
 - Be specific — name files, functions, line numbers
+- Use the Platform Reference to map errors to exact routes and components (e.g. a failure on /app/tickets maps to Tickets section, route defined in src/components/main/routes/...)
 - If uncertain, say so (LOW confidence is fine)
 - Always check history before saying "new bug"
 - Consider that the TEST might be wrong
@@ -274,13 +297,28 @@ async function runAuditAgent(
   const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userPrompt }];
 
   while (true) {
-    const response = await client.messages.create({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      system: AUDIT_SYSTEM_PROMPT,
-      tools: AUDIT_TOOLS,
-      messages,
-    });
+    let response: Anthropic.Message;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        response = await client.messages.create({
+          model: MODEL,
+          max_tokens: MAX_TOKENS,
+          system: AUDIT_SYSTEM_PROMPT,
+          tools: AUDIT_TOOLS,
+          messages,
+        });
+        break;
+      } catch (err: unknown) {
+        const status = (err as { status?: number }).status;
+        if (status === 429 && attempt < 3) {
+          const wait = Math.pow(2, attempt + 1) * 15_000; // 30s, 60s, 120s
+          console.log(`    [${failure.testId}] rate limited, waiting ${wait / 1000}s...`);
+          await new Promise((r) => setTimeout(r, wait));
+          continue;
+        }
+        throw err;
+      }
+    }
 
     totalInput += response.usage.input_tokens;
     totalOutput += response.usage.output_tokens;
@@ -294,7 +332,14 @@ async function runAuditAgent(
 
     if (toolCallCount + toolBlocks.length > MAX_TOOL_CALLS) {
       messages.push({ role: 'assistant', content: response.content });
-      messages.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: toolBlocks[0].id, content: 'Tool limit reached. Provide final JSON analysis now.', is_error: true }] });
+      // Must provide a tool_result for EVERY tool_use block
+      const limitResults: Anthropic.ToolResultBlockParam[] = toolBlocks.map((tb) => ({
+        type: 'tool_result' as const,
+        tool_use_id: tb.id,
+        content: 'Tool limit reached. Provide final JSON analysis now.',
+        is_error: true,
+      }));
+      messages.push({ role: 'user', content: limitResults });
       continue;
     }
 
@@ -371,21 +416,13 @@ async function postApprovalButtons(
 
   const slack = new WebClient(slackToken);
 
-  const categoryEmoji: Record<string, string> = {
-    regression: ':rewind:',
-    flaky: ':game_die:',
-    new_bug: ':bug:',
-    test_issue: ':test_tube:',
-    unknown: ':grey_question:',
-  };
-
   const blocks: KnownBlock[] = [
     {
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: [
-          `${categoryEmoji[investigation.category] || ':mag:'} *${investigation.testId}* — ${investigation.category.toUpperCase()}`,
+          `*${investigation.testId}* — ${investigation.category.toUpperCase()}`,
           `*Confidence:* ${investigation.confidence}`,
           `*Root Cause:* ${investigation.rootCause.substring(0, 300)}`,
           investigation.suspectFiles.length > 0

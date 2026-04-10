@@ -24,7 +24,7 @@ const CONTEXTS_DIR = path.join(RESULTS_DIR, 'contexts');
 const OUTPUT_FILE = path.join(RESULTS_DIR, 'sheets-report.json');
 
 async function generateReport(): Promise<void> {
-  console.log('📊 Generating test report...\n');
+  console.log('Generating test report...\n');
 
   // Check if directories exist
   if (!fs.existsSync(MOCHAWESOME_DIR)) {
@@ -42,15 +42,15 @@ async function generateReport(): Promise<void> {
     artifactBaseUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
   }
 
-  console.log('📂 Loading Mochawesome results...');
+  console.log('Loading Mochawesome results...');
   const mochawesomeResults = loadMochawesomeResults(MOCHAWESOME_DIR);
   console.log(`   Found ${mochawesomeResults.length} report file(s)`);
 
-  console.log('📂 Loading test contexts...');
+  console.log('Loading test contexts...');
   const contexts = loadTestContexts(CONTEXTS_DIR);
   console.log(`   Found ${contexts.byId.size} context file(s) (${contexts.byTitle.size} by title)`);
 
-  console.log('\n🔄 Processing results...');
+  console.log('\nProcessing results...');
   const results = processResults(mochawesomeResults, contexts, artifactBaseUrl);
   console.log(`   Processed ${results.length} test result(s)`);
 
@@ -80,10 +80,10 @@ async function generateReport(): Promise<void> {
   const jsonSafe = JSON.stringify(reportData, (key, value) =>
     key.startsWith('_') ? undefined : value as unknown, 2);
   fs.writeFileSync(OUTPUT_FILE, jsonSafe);
-  console.log(`\n✅ Report generated: ${OUTPUT_FILE}`);
+  console.log(`\nReport generated: ${OUTPUT_FILE}`);
 
   // Print summary
-  console.log('\n📈 Summary:');
+  console.log('\nSummary:');
   console.log(`   Total Tests: ${reportData.summary.totalTests}`);
   console.log(`   Passed: ${reportData.summary.passed}`);
   console.log(`   Failed: ${reportData.summary.failed}`);
@@ -113,7 +113,7 @@ async function persistToApi(reportData: {
   const trigger = process.env.GITHUB_EVENT_NAME as string || 'local';
   const skipped = reportData.results.filter((r) => r.status === 'SKIPPED').length;
 
-  console.log(`\n📡 Persisting to QA API (${apiUrl})...`);
+  console.log(`\nPersisting to QA API (${apiUrl})...`);
 
   try {
     // Create the test run
@@ -209,6 +209,6 @@ async function persistToApi(reportData: {
 
 // Run
 generateReport().catch((error) => {
-  console.error('❌ Failed to generate report:', error);
+  console.error('Failed to generate report:', error);
   process.exit(1);
 });

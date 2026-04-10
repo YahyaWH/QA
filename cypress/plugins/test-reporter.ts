@@ -187,7 +187,7 @@ export function processResults(
           stepsToReproduce = merged
             .map((step, i) => {
               const num = i + 1;
-              const prefix = step.isFailed ? '❌ FAILED: ' : '';
+              const prefix = step.isFailed ? 'FAILED: ' : '';
               return `${num}. ${prefix}${step.description}`;
             })
             .join('\n');
@@ -209,7 +209,7 @@ export function processResults(
             .filter((req) => !req.url.includes('/__cypress'))
             .slice(-15) // Last 15 requests
             .map((req) => {
-              const statusIcon = req.status >= 400 ? '❌' : '✅';
+              const statusIcon = req.status >= 400 ? 'FAIL' : 'OK';
               return `${statusIcon} ${req.method} ${req.url} → ${req.status} (${req.duration}ms)`;
             })
             .join('\n');

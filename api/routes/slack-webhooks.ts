@@ -68,10 +68,10 @@ router.post('/interactions', async (req: Request, res: Response) => {
       rerunApprovals.set(testId, rerunStatus);
 
       const statusText = rerunStatus === 'approved'
-        ? `:white_check_mark: Re-run approved by @${userName}`
-        : `:no_entry_sign: Re-run denied by @${userName}`;
+        ? `Re-run approved by @${userName}`
+        : `Re-run denied by @${userName}`;
 
-      await updateSlackMessage(payload.response_url, statusText, rerunStatus === 'approved' ? 'approved' : 'skipped');
+      await updateSlackMessage(payload.response_url, statusText);
       continue;
     }
 
@@ -106,7 +106,7 @@ router.post('/interactions', async (req: Request, res: Response) => {
         ? `Approved by @${userName} — Sweep starting...`
         : `Skipped by @${userName}`;
 
-      await updateSlackMessage(payload.response_url, statusText, status);
+      await updateSlackMessage(payload.response_url, statusText);
 
       // If approved, spawn Sweep for this investigation
       if (status === 'approved') {
@@ -123,8 +123,7 @@ router.post('/interactions', async (req: Request, res: Response) => {
  */
 async function updateSlackMessage(
   responseUrl: string,
-  statusText: string,
-  status: 'approved' | 'skipped'
+  statusText: string
 ): Promise<void> {
   try {
     await fetch(responseUrl, {
@@ -132,9 +131,7 @@ async function updateSlackMessage(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         replace_original: false,
-        text: status === 'approved'
-          ? `:white_check_mark: ${statusText}`
-          : `:no_entry_sign: ${statusText}`,
+        text: statusText,
       }),
     });
   } catch (err) {

@@ -1,0 +1,300 @@
+{
+  "platform": "WasteHero",
+  "environment": "https://app-development.wastehero.io",
+  "generated_at": "2026-04-09T07:34:59.163Z",
+  "sidebar_structure": {
+    "Data & Analytics": [
+      "Overview",
+      "Dashboards",
+      "Data Exports",
+      "Classic Exports",
+      "Data Imports"
+    ],
+    "Customers": [
+      "Properties",
+      "Map View",
+      "Groups",
+      "Contacts",
+      "SMS/Email Service"
+    ],
+    "Tickets": [
+      "Overview",
+      "Map View",
+      "Kanban",
+      "Customer Inbox"
+    ],
+    "Operations": [
+      "Live Monitoring",
+      "Routes",
+      "Route Schemes",
+      "Pickup History",
+      "Weight Control"
+    ],
+    "Fleet": [
+      "Vehicles",
+      "Drivers",
+      "Locations",
+      "Planning"
+    ],
+    "Assets": [
+      "Containers",
+      "Map View",
+      "Groups"
+    ]
+  },
+  "modules": [
+    {
+      "id": "home-dashboard",
+      "name": "Dashboard",
+      "parent": "Home",
+      "url": "/app/dashboard",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\home-dashboard.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "data-analytics-dashboards",
+      "name": "Dashboards",
+      "parent": "Data & Analytics",
+      "url": "/app/analytics/dashboards",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\data---analytics-dashboards.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "data-analytics-data-exports",
+      "name": "Data Exports",
+      "parent": "Data & Analytics",
+      "url": "/app/analytics/exports",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\data---analytics-data-exports.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "data-analytics-classic-exports",
+      "name": "Classic Exports",
+      "parent": "Data & Analytics",
+      "url": "/app/analytics/classic-exports",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\data---analytics-classic-exports.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "data-analytics-data-imports",
+      "name": "Data Imports",
+      "parent": "Data & Analytics",
+      "url": "/app/analytics/imports",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\data---analytics-data-imports.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "customers-properties",
+      "name": "Properties",
+      "parent": "Customers",
+      "url": "/app/customer-management/properties",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\customers-properties.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "customers-groups",
+      "name": "Groups",
+      "parent": "Customers",
+      "url": "/app/customer-management/property-groups",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\customers-groups.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "customers-contacts",
+      "name": "Contacts",
+      "parent": "Customers",
+      "url": "/app/customer-management/contacts",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\customers-contacts.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "customers-sms-email-service",
+      "name": "SMS/Email Service",
+      "parent": "Customers",
+      "url": "/app/customer-management/subscriptions",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\customers-sms-email-service.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "tickets-overview",
+      "name": "Overview",
+      "parent": "Tickets",
+      "url": "/app/tickets",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\tickets-overview.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "tickets-kanban",
+      "name": "Kanban",
+      "parent": "Tickets",
+      "url": "/app/tickets/kanban/VGlja2V0VHlwZURlZjoxMDYz",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\tickets-kanban.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "tickets-customer-inbox",
+      "name": "Customer Inbox",
+      "parent": "Tickets",
+      "url": "/app/tickets/customer-inbox",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\tickets-customer-inbox.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "operations-routes",
+      "name": "Routes",
+      "parent": "Operations",
+      "url": "/app/operation-management/routes",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\operations-routes.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "operations-route-schemes",
+      "name": "Route Schemes",
+      "parent": "Operations",
+      "url": "/app/operation-management/route-schemes",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\operations-route-schemes.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "operations-pickup-history",
+      "name": "Pickup History",
+      "parent": "Operations",
+      "url": "/app/operation-management/pickup-history",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\operations-pickup-history.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "operations-weight-control",
+      "name": "Weight Control",
+      "parent": "Operations",
+      "url": "/app/operation-management/weight-control/need-approval",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\operations-weight-control.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "fleet-vehicles",
+      "name": "Vehicles",
+      "parent": "Fleet",
+      "url": "/app/fleet-management/vehicles",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\fleet-vehicles.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "fleet-drivers",
+      "name": "Drivers",
+      "parent": "Fleet",
+      "url": "/app/fleet-management/drivers",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\fleet-drivers.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "fleet-locations",
+      "name": "Locations",
+      "parent": "Fleet",
+      "url": "/app/fleet-management/locations",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\fleet-locations.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "fleet-planning",
+      "name": "Planning",
+      "parent": "Fleet",
+      "url": "/app/fleet-management/vehicle-planner",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\fleet-planning.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "assets-containers",
+      "name": "Containers",
+      "parent": "Assets",
+      "url": "/app/asset-management/containers",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\assets-containers.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "assets-groups",
+      "name": "Groups",
+      "parent": "Assets",
+      "url": "/app/asset-management/container-group",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\assets-groups.png",
+      "key_features": [],
+      "onboarding_steps": []
+    },
+    {
+      "id": "alerts-alerts",
+      "name": "Alerts",
+      "parent": "Alerts",
+      "url": "/app/notifications/alerts",
+      "page_title": "WasteHero Platform",
+      "description": "",
+      "screenshot": "screenshots\\alerts-alerts.png",
+      "key_features": [],
+      "onboarding_steps": []
+    }
+  ]
+}

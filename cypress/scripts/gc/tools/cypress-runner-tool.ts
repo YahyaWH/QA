@@ -159,7 +159,7 @@ export async function requestRerunConfirmation(input: {
           text: {
             type: 'mrkdwn',
             text: [
-              `:recycle: *Mark wants to re-run \`${input.testId}\`*`,
+              `*Mark wants to re-run \`${input.testId}\`*`,
               `*Reason:* ${input.reason.substring(0, 300)}`,
             ].join('\n'),
           },

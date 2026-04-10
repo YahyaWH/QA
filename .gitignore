@@ -50,3 +50,15 @@ cypress/results/
 *.png
 *.jpg
 *.jpeg
+*.webm
+
+# Exception: README demo videos
+!docs/demo/*.mp4
+
+# Onboarding output (generated artifacts — keep in .gitignore)
+onboarding-output/videos/
+onboarding-output/screenshots/
+onboarding-output/snapshots/
+
+# Playwright MCP
+.playwright-mcp/
