@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { ClaudeClient, MalformedJsonError } from './claude';
+import { findingTupleKey } from './finding-keys';
 import type {
   Category,
   Fingerprint,
@@ -424,7 +425,7 @@ function dedupeByTuple(findings: Finding[]): Finding[] {
   const seen = new Set<string>();
   const out: Finding[] = [];
   for (const f of findings) {
-    const key = `${f.screenFp}|${f.element ?? 'null'}|${f.category}`;
+    const key = findingTupleKey(f);
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(f);

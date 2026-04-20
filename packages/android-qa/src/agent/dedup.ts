@@ -1,4 +1,5 @@
 import type { Finding, Severity } from '../types/index';
+import { findingTupleKey } from './finding-keys';
 
 /**
  * Severity ordering used to pick the "winner" Finding when merging duplicates.
@@ -48,7 +49,7 @@ export function dedupInRun(findings: Finding[]): Finding[] {
   const tupleGroups = new Map<string, number[]>();
   const tupleOrder: string[] = [];
   for (let i = 0; i < findings.length; i += 1) {
-    const key = tupleKey(findings[i]);
+    const key = findingTupleKey(findings[i]);
     const existing = tupleGroups.get(key);
     if (existing) {
       existing.push(i);
@@ -123,10 +124,6 @@ export function dedupInRun(findings: Finding[]): Finding[] {
     if (!members) throw new Error('unreachable: cluster members missing');
     return mergeIndices(stage1, members);
   });
-}
-
-function tupleKey(f: Finding): string {
-  return `${f.screenFp}|${f.element ?? 'null'}|${f.category}`;
 }
 
 function bucketKey(f: Finding): string {
