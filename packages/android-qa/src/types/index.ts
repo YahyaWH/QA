@@ -90,6 +90,12 @@ export interface AppMap {
   schemaVersion: 1;
   screens: Record<Fingerprint, PersistedScreen>;
   transitions: Array<{ from: Fingerprint; via: string; to: Fingerprint; occurrences: number }>;
+  /**
+   * Run IDs already folded into this map. `mergeRunIntoMap` guards on this set
+   * so calling it twice with the same `SessionState` is a no-op, which keeps
+   * screen `seenCount` and transition `occurrences` idempotent.
+   */
+  mergedRunIds?: string[];
 }
 
 export interface PersistedScreen extends Screen {

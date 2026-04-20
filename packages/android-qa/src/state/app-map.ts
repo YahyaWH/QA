@@ -29,6 +29,7 @@ function emptyAppMap(): AppMap {
     schemaVersion: APP_MAP_SCHEMA_VERSION,
     screens: {},
     transitions: [],
+    mergedRunIds: [],
   };
 }
 

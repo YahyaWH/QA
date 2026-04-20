@@ -31,6 +31,7 @@ describe('app-map state I/O', () => {
     expect(map.appVersion).toBe('unknown');
     expect(map.screens).toEqual({});
     expect(map.transitions).toEqual([]);
+    expect(map.mergedRunIds).toEqual([]);
     expect(typeof map.generatedAt).toBe('string');
     // ISO 8601: YYYY-MM-DDTHH:mm:ss.sssZ
     expect(map.generatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
