@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "End-to-end Cypress tests for WasteHero application",
   "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "cypress:open": "cypress open --config chromeWebSecurity=false",
     "cypress:run": "cypress run",
@@ -35,7 +38,11 @@
     "onboarding:video:create-container": "npx tsx scripts/onboarding/videos/create-container.ts",
     "onboarding:video:change-language": "npx tsx scripts/onboarding/videos/change-language.ts",
     "onboarding:video:impersonate-user": "npx tsx scripts/onboarding/videos/impersonate-user.ts",
-    "onboarding:video:customer-service": "npx tsx scripts/onboarding/videos/customer-service-lookup.ts"
+    "onboarding:video:customer-service": "npx tsx scripts/onboarding/videos/customer-service-lookup.ts",
+    "android-qa:explore": "npm run explore -w @wastehero-qa/android-qa",
+    "android-qa:publish": "npm run publish -w @wastehero-qa/android-qa",
+    "android-qa:smoke": "npm run smoke -w @wastehero-qa/android-qa",
+    "android-qa:test": "npm run test -w @wastehero-qa/android-qa"
   },
   "keywords": [
     "cypress",

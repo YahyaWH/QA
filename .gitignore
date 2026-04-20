@@ -62,3 +62,6 @@ onboarding-output/snapshots/
 
 # Playwright MCP
 .playwright-mcp/
+
+# Android QA per-run artifacts
+output/android-qa/
