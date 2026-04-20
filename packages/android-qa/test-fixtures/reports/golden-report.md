@@ -6,7 +6,7 @@
 **Screens visited:** 3
 
 ## Run status
-completed
+completed — frontier exhausted
 
 ## Regressions (previously resolved, now back) — 1
 

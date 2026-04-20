@@ -385,4 +385,229 @@ describe('render', () => {
     expect(newIdx).toBeGreaterThan(regressionsIdx);
     expect(seenIdx).toBeGreaterThan(newIdx);
   });
+
+  it('dedupes Previously-seen rows by tuple key even when ids differ across runs', () => {
+    // Same underlying bug: (screenFp A, element btn, category B).
+    // Current-run classified it `previously-seen` with id 'x...'.
+    // History has it `published` under a different run — id 'y...'.
+    // Finding ids embed runId, so a naive id-based dedup would emit BOTH rows.
+    // The renderer must collapse them using findingTupleKey.
+    const currentSeen = finding({
+      id: 'x0000000000000aa',
+      screenFp: 'aaaaaaaaaaaaaaaa',
+      element: 'btn',
+      category: 'B',
+      severity: 'med',
+      status: 'previously-seen',
+      summary: 'Shared bug seen this run',
+      reasoning: 'current-run reasoning',
+      // No linearIssueId on the current-run entry — should inherit from history.
+    });
+
+    const publishedInHistory = finding({
+      id: 'y0000000000000bb',
+      runId: 'run-20260410-0800',
+      screenFp: 'aaaaaaaaaaaaaaaa',
+      element: 'btn',
+      category: 'B',
+      severity: 'med',
+      status: 'published',
+      summary: 'Shared bug — stale summary from earlier publish',
+      reasoning: 'historical reasoning',
+      linearIssueId: 'WH-1',
+    });
+
+    const state = session({ findings: [currentSeen] });
+    const out = render({
+      session: state,
+      history: [publishedInHistory],
+      runDir: 'out',
+    });
+
+    // Count rows in the Previously-seen section.
+    const seenSection = out.slice(out.indexOf('## Previously seen'));
+    const rowCount = (seenSection.match(/^### ☑ /gm) ?? []).length;
+    expect(rowCount).toBe(1);
+
+    // Header count should reflect the single merged row.
+    expect(out).toContain('## Previously seen (already triaged; informational) — 1');
+
+    // The current-run entry wins for display (fresher summary)…
+    expect(out).toContain('Shared bug seen this run');
+    expect(out).not.toContain('stale summary from earlier publish');
+
+    // …but inherits the historical linear id since the current entry lacks one.
+    expect(out).toContain('WH-1 (open)');
+  });
+
+  it('emits "completed — turn budget reached" when history.length === budget.turns', () => {
+    const turns = 5;
+    const fakeHistory = Array.from({ length: turns }, (_, i) => ({
+      turn: i,
+      screenFp: 'fp00000000000000',
+      action: { kind: 'tap' as const, elementId: 'btn' },
+      outcomeFp: null,
+      ms: 100,
+    }));
+    const state = session({
+      status: 'completed',
+      budget: { wallClockMs: 60 * 60_000, turns },
+      history: fakeHistory,
+    });
+
+    const out = render({
+      session: state,
+      history: [],
+      runDir: 'out',
+    });
+
+    expect(out).toContain('## Run status\ncompleted — turn budget reached');
+  });
+
+  it('emits "completed — wall-clock budget reached" when elapsed time is within 5% of wallClockMs', () => {
+    // Budget 30 min, elapsed ~29 min → 3.3% under budget → within tolerance.
+    const state = session({
+      status: 'completed',
+      startedAt: '2026-04-20T12:00:00.000Z',
+      endedAt: '2026-04-20T12:29:00.000Z',
+      budget: { wallClockMs: 30 * 60_000, turns: 10_000 },
+      history: [],
+    });
+
+    const out = render({
+      session: state,
+      history: [],
+      runDir: 'out',
+    });
+
+    expect(out).toContain('## Run status\ncompleted — wall-clock budget reached');
+  });
+
+  it('emits "completed — agent signalled done" when the last action was done', () => {
+    const state = session({
+      status: 'completed',
+      budget: { wallClockMs: 60 * 60_000, turns: 1_000 },
+      // Make elapsed clearly NOT a wall-clock hit (e.g. 5 minutes of a 60-min budget).
+      startedAt: '2026-04-20T12:00:00.000Z',
+      endedAt: '2026-04-20T12:05:00.000Z',
+      history: [
+        {
+          turn: 0,
+          screenFp: 'fp00000000000000',
+          action: { kind: 'done', reason: 'explored everything reachable' },
+          outcomeFp: null,
+          ms: 100,
+        },
+      ],
+    });
+
+    const out = render({
+      session: state,
+      history: [],
+      runDir: 'out',
+    });
+
+    expect(out).toContain('## Run status\ncompleted — agent signalled done');
+  });
+
+  it('falls back to "completed — frontier exhausted" when no other reason applies', () => {
+    const state = session({
+      status: 'completed',
+      // Well under the turn budget.
+      budget: { wallClockMs: 60 * 60_000, turns: 1_000 },
+      // Well under the wall-clock budget (5 min of 60).
+      startedAt: '2026-04-20T12:00:00.000Z',
+      endedAt: '2026-04-20T12:05:00.000Z',
+      history: [
+        {
+          turn: 0,
+          screenFp: 'fp00000000000000',
+          action: { kind: 'tap', elementId: 'btn' },
+          outcomeFp: null,
+          ms: 100,
+        },
+      ],
+    });
+
+    const out = render({
+      session: state,
+      history: [],
+      runDir: 'out',
+    });
+
+    expect(out).toContain('## Run status\ncompleted — frontier exhausted');
+  });
+
+  it.each([
+    ['aborted-crash-loop', 'crash count reached 3'],
+    ['aborted-device', 'emulator unrecoverable'],
+    ['aborted-auth', 'login flow failed'],
+    ['aborted-error', 'unexpected exception in main loop'],
+  ] as const)(
+    'emits "%s — %s" for aborted runs',
+    (status, reason) => {
+      const state = session({ status });
+      const out = render({
+        session: state,
+        history: [],
+        runDir: 'out',
+      });
+      expect(out).toContain(`## Run status\n${status} — ${reason}`);
+    },
+  );
+
+  it('adds an Evidence blockquote for category A + ANR in reasoning', () => {
+    const anr = finding({
+      id: '9999000000000000',
+      category: 'A',
+      severity: 'high',
+      status: 'new',
+      summary: 'ANR on splash',
+      reasoning: 'ANR in com.example — main thread blocked for 5.2s',
+    });
+    const state = session({ findings: [anr] });
+
+    const out = render({
+      session: state,
+      history: [],
+      runDir: 'out',
+    });
+
+    expect(out).toContain('**Evidence:**');
+    expect(out).toMatch(/>\s+`[^`]*ANR in com\.example[^`]*`/);
+  });
+
+  it('strips backticks from reasoning before wrapping in the Evidence code-span', () => {
+    // A raw backtick inside `${reasoning}` would break the surrounding code-span.
+    const crashy = finding({
+      id: 'bbbb111100000000',
+      category: 'A',
+      severity: 'critical',
+      status: 'new',
+      summary: 'Crash with quoted log line',
+      reasoning: 'FATAL EXCEPTION: something went `wrong` here',
+    });
+    const state = session({ findings: [crashy] });
+
+    const out = render({
+      session: state,
+      history: [],
+      runDir: 'out',
+    });
+
+    // The evidence line must not contain any internal backticks that would
+    // prematurely close the code-span.
+    const evidenceLine = out
+      .split('\n')
+      .find((l) => l.trim().startsWith('> `'));
+    expect(evidenceLine).toBeDefined();
+    const inner = evidenceLine!.trim().slice(2).trim(); // strip "> "
+    // Strip the leading/trailing backtick delimiters and assert the inside
+    // has none.
+    expect(inner.startsWith('`') && inner.endsWith('`')).toBe(true);
+    const codeSpanBody = inner.slice(1, -1);
+    expect(codeSpanBody).not.toContain('`');
+    // Original message is preserved with backticks replaced by single quotes.
+    expect(codeSpanBody).toContain("something went 'wrong' here");
+  });
 });

@@ -4,6 +4,7 @@ import type {
   SessionState,
   Severity,
 } from '../types/index';
+import { findingTupleKey } from '../agent/finding-keys';
 
 /**
  * Options accepted by the report renderer. A pure function — no I/O, no
@@ -108,7 +109,71 @@ function renderHeader(session: SessionState): string {
 
 function renderRunStatus(session: SessionState): string {
   const status = session.status ?? 'completed';
-  return ['', '## Run status', status].join('\n');
+  const reason = runStatusReason(session, status);
+  const line = reason ? `${status} — ${reason}` : status;
+  return ['', '## Run status', line].join('\n');
+}
+
+/**
+ * Derive a short, user-facing reason for why the run ended in the given status.
+ *
+ * For `completed` we disambiguate between turn-budget, wall-clock-budget, an
+ * agent-signalled `done`, and the default "frontier exhausted" fallback. The
+ * wall-clock check allows a ±5% margin because `endedAt` is set after the
+ * main loop exits, not at the exact tripwire.
+ *
+ * For `aborted-*` statuses we return a canonical short explanation.
+ *
+ * Returns `undefined` when the status is unknown — the caller then emits the
+ * bare status token without a dash-reason.
+ */
+function runStatusReason(
+  session: SessionState,
+  status: SessionState['status'],
+): string | undefined {
+  switch (status) {
+    case 'completed': {
+      if (session.history.length >= session.budget.turns) {
+        return 'turn budget reached';
+      }
+      if (isWallClockBudgetHit(session)) {
+        return 'wall-clock budget reached';
+      }
+      const last = session.history[session.history.length - 1];
+      if (last && last.action.kind === 'done') {
+        return 'agent signalled done';
+      }
+      return 'frontier exhausted';
+    }
+    case 'aborted-crash-loop':
+      return 'crash count reached 3';
+    case 'aborted-device':
+      return 'emulator unrecoverable';
+    case 'aborted-auth':
+      return 'login flow failed';
+    case 'aborted-error':
+      return 'unexpected exception in main loop';
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * True when the run's wall-clock elapsed time is within ±5% of the configured
+ * budget, indicating the run ended because the wall-clock tripwire fired.
+ */
+function isWallClockBudgetHit(session: SessionState): boolean {
+  if (!session.endedAt) return false;
+  const start = Date.parse(session.startedAt);
+  const end = Date.parse(session.endedAt);
+  if (Number.isNaN(start) || Number.isNaN(end) || end < start) return false;
+
+  const elapsed = end - start;
+  const budget = session.budget.wallClockMs;
+  if (budget <= 0) return false;
+
+  const tolerance = budget * 0.05;
+  return Math.abs(elapsed - budget) <= tolerance;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -151,15 +216,48 @@ function renderNew(findings: Finding[], screenRef: ScreenRef): string {
 /*  Previously seen                                                            */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Merge current-run "previously-seen" findings with historical "published"
+ * entries representing bugs that aren't in the current run.
+ *
+ * Dedup key is `findingTupleKey` — `${screenFp}|${element ?? 'null'}|${category}`
+ * — NOT `Finding.id`. `Finding.id` embeds `runId` (see `evaluate.ts:makeFindingId`),
+ * so the same underlying bug observed this run and marked `published` in history
+ * has DIFFERENT ids and would otherwise appear twice. The tuple key matches the
+ * rest of the system's dedup semantics (`dedup.ts`, `cross-run-dedup.ts`).
+ *
+ * When a current-run entry collides with a published historical entry, prefer
+ * the current-run entry for display (it has the fresher observation) but copy
+ * the historical `linearIssueId` across if the current entry lacks it.
+ */
 function mergePreviouslySeen(current: Finding[], history: Finding[]): Finding[] {
-  const present = new Set(current.map((f) => f.id));
-  const extras: Finding[] = [];
+  // Map tuple → index in `merged` so collisions can be resolved in place.
+  const byTuple = new Map<string, number>();
+  const merged: Finding[] = [];
+
+  for (const f of current) {
+    byTuple.set(findingTupleKey(f), merged.length);
+    merged.push(f);
+  }
+
   for (const h of history) {
     if (h.status !== 'published') continue;
-    if (present.has(h.id)) continue;
-    extras.push(h);
+    const key = findingTupleKey(h);
+    const existingIdx = byTuple.get(key);
+    if (existingIdx === undefined) {
+      byTuple.set(key, merged.length);
+      merged.push(h);
+      continue;
+    }
+    // Current-run entry wins for display, but inherit historical linear id
+    // when the current one doesn't carry it forward.
+    const existing = merged[existingIdx];
+    if (!existing.linearIssueId && h.linearIssueId) {
+      merged[existingIdx] = { ...existing, linearIssueId: h.linearIssueId };
+    }
   }
-  return [...current, ...extras];
+
+  return merged;
 }
 
 function renderPreviouslySeen(findings: Finding[]): string {
@@ -211,10 +309,21 @@ function renderFindingBlock(f: Finding, opts: FindingBlockOpts): string {
 
   if (shouldShowEvidence(f)) {
     lines.push('- **Evidence:**');
-    lines.push(`  > \`${f.reasoning}\``);
+    lines.push(`  > \`${escapeCodeSpan(f.reasoning)}\``);
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Strip backticks from a string so it can be safely wrapped in a markdown
+ * code-span without breaking the delimiter. Simplest defensive fix: replace
+ * internal backticks with single quotes. The evidence blockquote is a
+ * human-facing summary — losing literal backticks is acceptable; a broken
+ * code-span is not.
+ */
+function escapeCodeSpan(s: string): string {
+  return s.replaceAll('`', "'");
 }
 
 /* -------------------------------------------------------------------------- */
