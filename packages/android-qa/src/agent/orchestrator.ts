@@ -29,6 +29,12 @@ import { login, LoginFailedError } from './login';
  * crash detection may pass `null`. `now` / `sleepFn` are injectable clocks so
  * tests can drive wall-clock termination deterministically.
  *
+ * `runId` / `appVersion` are optional overrides used by the explore CLI
+ * (Task 22) so the in-memory SessionState's runId matches the Recorder's
+ * initialState runId and the real APK versionName is carried through. When
+ * omitted, `runId` falls back to `run-${Date.now()}` and `appVersion` to
+ * `'unknown'` (the pre-Task-22 default preserved for tests).
+ *
  * @remarks `history` is accepted as part of the stable signature for when the
  * CLI (Task 22) wires cross-run classification through; this orchestrator
  * currently does not pre-seed state from it because that classification is the
@@ -45,6 +51,8 @@ export interface RunOptions {
   logcatTail?: LogcatTail | null;
   now?: () => number;
   sleepFn?: (ms: number) => Promise<void>;
+  runId?: string;
+  appVersion?: string;
 }
 
 /**
@@ -61,7 +69,7 @@ export async function run(opts: RunOptions): Promise<SessionState> {
   void opts.sleepFn;
   void opts.history;
 
-  const state: SessionState = buildInitialState(config, role);
+  const state: SessionState = buildInitialState(config, role, opts.runId, opts.appVersion);
 
   const startMs = now();
 
@@ -387,16 +395,21 @@ async function appendTurn(
 }
 
 /**
- * Build the initial in-memory `SessionState`. `runId` is derived from the
- * current timestamp to stay consistent with the recorder's initialState when
- * the caller has not pre-populated one.
+ * Build the initial in-memory `SessionState`. `runId` / `appVersion` can be
+ * supplied by the caller (the explore CLI) so the orchestrator's state matches
+ * the recorder's initialState byte-for-byte. Fallbacks preserve pre-CLI
+ * behaviour: `run-${Date.now()}` and `'unknown'`.
  */
-function buildInitialState(config: Config, role: string): SessionState {
+function buildInitialState(
+  config: Config,
+  role: string,
+  runId?: string,
+  appVersion?: string,
+): SessionState {
   const startedAt = new Date().toISOString();
-  const runId = `run-${Date.now()}`;
   return {
-    runId,
-    appVersion: 'unknown',
+    runId: runId ?? `run-${Date.now()}`,
+    appVersion: appVersion ?? 'unknown',
     role,
     startedAt,
     budget: {
