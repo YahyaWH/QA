@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   mkdtempSync,
+  mkdirSync,
   rmSync,
   existsSync,
+  statSync,
   readFileSync,
   writeFileSync,
 } from 'node:fs';
@@ -181,20 +183,40 @@ describe('findings-history JSONL store', () => {
     expect(existsSync(target + '.tmp')).toBe(false);
   });
 
-  it('updateFindingStatus rethrows when the write path is invalid, leaving no .tmp in place', async () => {
-    // Task-spec scenario: pre-create a regular file at `dir/blocker`, then target `dir/blocker/x.jsonl`.
-    // dirname(target) == blocker (a file), so mkdir(dirname(target), { recursive: true }) throws
-    // ENOTDIR — which also short-circuits readHistory (ENOENT → []), hence the id lookup throws
-    // "no finding with id=..." before any write is attempted. Either way, NO .tmp sibling is left
-    // behind, which is the invariant we care about.
-    const blocker = join(dir, 'blocker');
-    writeFileSync(blocker, 'not a directory', 'utf8');
-    const target = join(blocker, 'x.jsonl');
+  it('updateFindingStatus rethrows when the write fails, leaving the original file intact and no leaked .tmp file', async () => {
+    // To actually exercise the cleanup branch in `updateFindingStatus` (the
+    // `unlink(tmp).catch(() => {})` after a failed open/write/rename), we need:
+    //   1) readHistory to SUCCEED — so we pre-seed the target with a valid entry.
+    //   2) The subsequent write to FAIL — so we pre-create `target + '.tmp'` as
+    //      a directory. `open(tmp, 'w')` then fails with EISDIR (cross-platform),
+    //      triggering the catch clause that attempts `unlink(tmp)` and rethrows.
+    const target = join(dir, 'history.jsonl');
+    const seeded = finding({ id: 'a', status: 'new', summary: 'seeded' });
+    await appendFindings([seeded], target);
+    const originalBytes = readFileSync(target, 'utf8');
+
+    // Pre-create the `.tmp` path as a directory so open-for-write blows up.
+    const tmpPath = target + '.tmp';
+    mkdirSync(tmpPath);
 
     await expect(
-      updateFindingStatus('any', { status: 'published' }, target),
+      updateFindingStatus('a', { status: 'published' }, target),
     ).rejects.toThrow();
-    expect(existsSync(target + '.tmp')).toBe(false);
+
+    // The original file must be untouched — the canonical tmp+rename pattern's
+    // whole point is that a failed write never clobbers the previous good file.
+    expect(existsSync(target)).toBe(true);
+    expect(readFileSync(target, 'utf8')).toBe(originalBytes);
+    const after = await readHistory(target);
+    expect(after).toHaveLength(1);
+    expect(after[0]).toEqual(seeded);
+
+    // The `.tmp` path still exists, but only as the directory we planted —
+    // `unlink` on a directory is a no-op (EPERM/EISDIR, swallowed by the
+    // best-effort `.catch(() => {})`). The invariant we care about is that
+    // no stray .tmp FILE was leaked by the failed write.
+    expect(existsSync(tmpPath)).toBe(true);
+    expect(statSync(tmpPath).isDirectory()).toBe(true);
   });
 
   it('defaultFindingsHistoryPath() resolves to <package-root>/state/findings-history.jsonl', () => {
