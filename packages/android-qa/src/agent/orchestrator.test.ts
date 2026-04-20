@@ -285,28 +285,34 @@ describe('orchestrator.run', () => {
     expect(session.counters.crashCount).toBeGreaterThanOrEqual(3);
   });
 
-  it('aborts cleanly when the wall-clock budget elapses', async () => {
+  it('aborts cleanly when the wall-clock budget elapses (not the turn budget)', async () => {
     const driver = makeScriptedDriver(20);
     await driver.start();
 
     const { client, callJson } = makeClaude();
-    for (let i = 0; i < 20; i += 1) {
+    for (let i = 0; i < 100; i += 1) {
       callJson.mockResolvedValueOnce(
-        decideResp({ kind: 'tap', elementId: `com.wastehero:id/btn-${i + 1}` }),
+        decideResp({ kind: 'tap', elementId: `com.wastehero:id/btn-${(i % 20) + 1}` }),
       );
     }
 
     // Injected clock: advances by 200ms per call. With wallClockMinutes = 0.01
-    // (600ms), the loop should exit after ~3 turns.
+    // (600ms), the loop should exit after ~3 turns. Track how many now() calls
+    // happened after the deadline — that number must be positive to prove the
+    // wall-clock check (not the turn budget) fired.
+    const wallClockMs = 600;
     let ticks = 0;
+    let postDeadlineTicks = 0;
     const now = (): number => {
       const t = ticks;
+      if (t >= wallClockMs) postDeadlineTicks += 1;
       ticks += 200;
       return t;
     };
 
-    const config = makeConfig({ wallClockMinutes: 0.01, turnBudget: 30 });
-    const recorder = new Recorder({ runDir, initialState: emptySession('run-time', 30) });
+    // turnBudget: 1000 is unreachable — only wall-clock can terminate this run.
+    const config = makeConfig({ wallClockMinutes: wallClockMs / 60_000, turnBudget: 1000 });
+    const recorder = new Recorder({ runDir, initialState: emptySession('run-time', 1000) });
     const session = await run({
       driver,
       claude: client,
@@ -319,8 +325,10 @@ describe('orchestrator.run', () => {
     });
 
     expect(session.status).toBe('completed');
-    expect(session.history.length).toBeGreaterThan(0);
-    expect(session.history.length).toBeLessThan(20);
+    // Far below the turn budget — only wall-clock could have ended this run.
+    expect(session.history.length).toBeLessThan(10);
+    // And the injected clock actually advanced past the deadline at least once.
+    expect(postDeadlineTicks).toBeGreaterThan(0);
   });
 
   it('recovers once from emulator death, then aborts with aborted-device on the second loss', async () => {
@@ -387,15 +395,18 @@ describe('orchestrator.run', () => {
     );
 
     // Intercept tap AFTER login completes (login itself taps submit-btn).
+    // `tapThrowCount` proves the scripted throw fired exactly once; an
+    // `isAppAlive` spy proves the post-action liveness-probe path ran after it.
     const originalTap = driver.tap.bind(driver);
-    let throwNext = false;
+    let tapThrowCount = 0;
     driver.tap = async (resourceId: string): Promise<void> => {
-      if (resourceId === 'com.wastehero:id/btn-1' && !throwNext) {
-        throwNext = true;
+      if (resourceId === 'com.wastehero:id/btn-1' && tapThrowCount === 0) {
+        tapThrowCount += 1;
         throw new Error('stale element');
       }
       await originalTap(resourceId);
     };
+    const aliveSpy = vi.spyOn(driver, 'isAppAlive');
 
     const recorder = new Recorder({ runDir, initialState: emptySession('run-appium', 20) });
     const session = await run({
@@ -411,6 +422,11 @@ describe('orchestrator.run', () => {
     // The orchestrator recovered — we ended cleanly rather than hitting aborted-device.
     expect(session.status).toBe('completed');
     expect(session.history.length).toBeGreaterThanOrEqual(1);
+    // The staged throw fired exactly once (proving the swallow branch executed).
+    expect(tapThrowCount).toBe(1);
+    // And the post-action liveness probe ran, confirming the recovery path took
+    // over after the tap error.
+    expect(aliveSpy).toHaveBeenCalled();
   });
 
   it('seeds the frontier from the appMap on a new screen', async () => {
@@ -503,6 +519,55 @@ describe('orchestrator.run', () => {
 
     expect(session.status).toBe('completed');
     expect(session.history).toHaveLength(3);
+  });
+
+  it('finalizes as aborted-error and rethrows when an unexpected error escapes the loop', async () => {
+    const driver = makeScriptedDriver(10);
+    await driver.start();
+
+    const { client, callJson } = makeClaude();
+    // Enough scripted decisions that we would have kept going if nothing threw.
+    for (let i = 0; i < 5; i += 1) {
+      callJson.mockResolvedValueOnce(
+        decideResp({ kind: 'tap', elementId: `com.wastehero:id/btn-${i + 1}` }),
+      );
+    }
+
+    const recorder = new Recorder({ runDir, initialState: emptySession('run-aborted-error', 10) });
+    // Let turn 1 land on disk (via the real implementation), then make the 2nd
+    // appendTurn reject. This path is the one uncovered by other tests: it
+    // escapes every inner try/catch in the loop body and must hit the outer
+    // `catch (err)` -> `finalizeWithError` branch, which persists
+    // `aborted-error` and rethrows.
+    const realAppendTurn = recorder.appendTurn.bind(recorder);
+    const boom = new Error('disk exploded');
+    let appendCalls = 0;
+    vi.spyOn(recorder, 'appendTurn').mockImplementation(async (turn) => {
+      appendCalls += 1;
+      if (appendCalls === 2) throw boom;
+      return realAppendTurn(turn);
+    });
+
+    await expect(
+      run({
+        driver,
+        claude: client,
+        recorder,
+        config: makeConfig({ turnBudget: 10 }),
+        appMap: emptyAppMap(),
+        history: [],
+        role: 'admin',
+      }),
+    ).rejects.toBe(boom);
+
+    // session.json on disk must reflect the aborted-error terminal state.
+    const onDisk = JSON.parse(
+      readFileSync(join(runDir, 'session.json'), 'utf8'),
+    ) as SessionState;
+    expect(onDisk.status).toBe('aborted-error');
+    expect(typeof onDisk.endedAt).toBe('string');
+    // Exactly one turn was successfully appended before the crash on turn 2.
+    expect(onDisk.history).toHaveLength(1);
   });
 
   it('saves a post-action screenshot per turn', async () => {

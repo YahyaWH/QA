@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { fingerprintFromXml } from './fingerprint';
+import { fingerprintFromTree, fingerprintFromXml } from './fingerprint';
+import { parseViewTree } from '../device/tree';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,5 +36,14 @@ describe('fingerprintFromXml', () => {
     const a = fingerprintFromXml(xml, 'LoginActivity');
     const b = fingerprintFromXml(xml, 'SignupActivity');
     expect(a).not.toBe(b);
+  });
+});
+
+describe('fingerprintFromTree / fingerprintFromXml parity', () => {
+  it('produces the same fingerprint whether walked from parsed tree or raw xml', () => {
+    const xml = fixture('login.xml');
+    const fromTree = fingerprintFromTree(parseViewTree(xml), 'LoginActivity');
+    const fromXml = fingerprintFromXml(xml, 'LoginActivity');
+    expect(fromTree).toBe(fromXml);
   });
 });
