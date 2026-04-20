@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { ClaudeClient, MalformedJsonError } from './claude';
 import type {
@@ -40,19 +41,25 @@ export interface EvaluateConfig {
 }
 
 /**
- * Zod schema for the vision response. The model is only asked to return the
- * interesting fields (category, severity, summary, element); the evaluator
- * fills in runId/screenFp/id/status/reasoning on our side.
+ * Zod schema for the vision response. The model returns the interesting fields
+ * (category, severity, summary, element, reasoning); the evaluator fills in
+ * runId/screenFp/id/status on our side. The inner finding schema is `.strict()`
+ * so unknown model-added fields fail parsing and surface prompt drift during
+ * development; the outer envelope stays lenient so a future extra top-level
+ * field doesn't take down the whole pass.
  */
 const CategorySchema: z.ZodType<Category> = z.enum(['A', 'B', 'C', 'D', 'E']);
 const SeveritySchema: z.ZodType<Severity> = z.enum(['low', 'med', 'high', 'critical']);
 
-const VisionFindingSchema = z.object({
-  category: CategorySchema,
-  severity: SeveritySchema,
-  summary: z.string(),
-  element: z.string().nullable(),
-});
+const VisionFindingSchema = z
+  .object({
+    category: CategorySchema,
+    severity: SeveritySchema,
+    summary: z.string(),
+    element: z.string().nullable(),
+    reasoning: z.string(),
+  })
+  .strict();
 
 const VisionResponseSchema = z.object({
   findings: z.array(VisionFindingSchema),
@@ -76,12 +83,15 @@ Severity: "critical" (blocks use), "high" (major impact), "med" (noticeable), "l
 If you can identify the UI element responsible (by its visible resource id or
 a stable contentDescription), put it in "element"; otherwise use null.
 
+For each finding include a one-sentence "reasoning" explaining WHY this is an
+issue, distinct from the short "summary" of WHAT is wrong.
+
 Respond with ONLY valid JSON matching this schema:
 
 {
   "findings": [
     { "category": "A"|"B"|"C"|"D"|"E", "severity": "low"|"med"|"high"|"critical",
-      "summary": string, "element": string | null }
+      "summary": string, "element": string | null, "reasoning": string }
   ]
 }
 
@@ -106,16 +116,17 @@ export async function evaluate(
   claude: ClaudeClient,
 ): Promise<Finding[]> {
   const findings: Finding[] = [];
-  let counter = 0;
-  const nextId = (element: string | null, category: Category): string => {
-    counter += 1;
-    return `${state.runId}:${ctx.currentScreenFp}:${element ?? 'null'}:${category}:${counter}`;
-  };
 
   // 1) Logcat scan — always.
   for (const finding of scanLogcat(ctx.logcatDelta)) {
     findings.push({
-      id: nextId(finding.element, finding.category),
+      id: makeFindingId(
+        state.runId,
+        ctx.currentScreenFp,
+        finding.element,
+        finding.category,
+        finding.summary,
+      ),
       runId: state.runId,
       screenFp: ctx.currentScreenFp,
       element: finding.element,
@@ -131,7 +142,13 @@ export async function evaluate(
   if (ctx.currentTree !== null) {
     for (const finding of scanTree(ctx.currentTree)) {
       findings.push({
-        id: nextId(finding.element, finding.category),
+        id: makeFindingId(
+          state.runId,
+          ctx.currentScreenFp,
+          finding.element,
+          finding.category,
+          finding.summary,
+        ),
         runId: state.runId,
         screenFp: ctx.currentScreenFp,
         element: finding.element,
@@ -149,20 +166,45 @@ export async function evaluate(
     const visionFindings = await runVision(ctx, claude);
     for (const vf of visionFindings) {
       findings.push({
-        id: nextId(vf.element, vf.category),
+        id: makeFindingId(
+          state.runId,
+          ctx.currentScreenFp,
+          vf.element,
+          vf.category,
+          vf.summary,
+        ),
         runId: state.runId,
         screenFp: ctx.currentScreenFp,
         element: vf.element,
         category: vf.category,
         severity: vf.severity,
         summary: vf.summary,
-        reasoning: 'vision: ' + vf.summary,
+        reasoning: vf.reasoning,
         status: 'new',
       });
     }
   }
 
   return dedupeByTuple(findings);
+}
+
+/**
+ * Deterministic, content-addressed Finding id. Stable under scan-order reordering
+ * so `findings-history.jsonl` (Task 19) can treat the same logical finding
+ * consistently across runs. 16-char SHA-1 hex prefix is collision-resistant
+ * enough for a single exploration session.
+ */
+function makeFindingId(
+  runId: string,
+  screenFp: string,
+  element: string | null,
+  category: Category,
+  summary: string,
+): string {
+  return createHash('sha1')
+    .update(`${runId}|${screenFp}|${element ?? 'null'}|${category}|${summary}`)
+    .digest('hex')
+    .slice(0, 16);
 }
 
 /**
@@ -330,7 +372,15 @@ function trimSnippet(text: string): string {
 async function runVision(
   ctx: EvaluateContext,
   claude: ClaudeClient,
-): Promise<Array<{ category: Category; severity: Severity; summary: string; element: string | null }>> {
+): Promise<
+  Array<{
+    category: Category;
+    severity: Severity;
+    summary: string;
+    element: string | null;
+    reasoning: string;
+  }>
+> {
   if (ctx.screenshotBase64 === null) return [];
 
   let raw: unknown;

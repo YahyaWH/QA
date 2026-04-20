@@ -126,7 +126,13 @@ describe('evaluate', () => {
     });
     const { client, calls } = fakeClaude(async () => ({
       findings: [
-        { category: 'C', severity: 'med', summary: 'unlabeled icon', element: 'fab-btn' },
+        {
+          category: 'C',
+          severity: 'med',
+          summary: 'unlabeled icon',
+          element: 'fab-btn',
+          reasoning: 'icon has no contentDescription or visible label',
+        },
       ],
     }));
 
@@ -147,8 +153,8 @@ describe('evaluate', () => {
     expect(f.summary).toBe('unlabeled icon');
     expect(f.status).toBe('new');
     expect(typeof f.id).toBe('string');
-    expect(f.id.length).toBeGreaterThan(0);
-    expect(typeof f.reasoning).toBe('string');
+    expect(f.id).toMatch(/^[0-9a-f]{16}$/);
+    expect(f.reasoning).toBe('icon has no contentDescription or visible label');
   });
 
   it('detects FATAL EXCEPTION in logcat without calling vision', async () => {
@@ -187,7 +193,13 @@ describe('evaluate', () => {
     });
     const { client, fn } = fakeClaude(async () => ({
       findings: [
-        { category: 'C', severity: 'low', summary: 'confusing copy', element: null },
+        {
+          category: 'C',
+          severity: 'low',
+          summary: 'confusing copy',
+          element: null,
+          reasoning: 'wording is ambiguous about what action will happen',
+        },
       ],
     }));
 
@@ -239,19 +251,62 @@ describe('evaluate', () => {
       screenshotBase64: 'cG5n',
       imageMediaType: 'image/png',
     });
-    const { client } = fakeClaude(async () => ({
+    const { client, fn } = fakeClaude(async () => ({
       findings: [
-        { category: 'A', severity: 'critical', summary: 'app crashed', element: null },
+        {
+          category: 'A',
+          severity: 'critical',
+          summary: 'app crashed',
+          element: null,
+          reasoning: 'full-screen crash dialog with stack trace visible',
+        },
       ],
     }));
 
     const result = await evaluate(state, ctx, cfg, client);
 
+    // Vision was actually invoked — a regression where it got skipped would
+    // produce the same single-finding result but without exercising dedup.
+    expect(fn).toHaveBeenCalledTimes(1);
     expect(result).toHaveLength(1);
     // First occurrence (logcat) wins over the duplicate vision entry.
     expect(result[0].reasoning).toMatch(/logcat:/);
     expect(result[0].category).toBe('A');
     expect(result[0].element).toBeNull();
+  });
+
+  it('produces identical Finding ids on re-run with identical inputs', async () => {
+    const makeCtx = (): EvaluateContext =>
+      baseCtx({
+        currentScreenFp: 'fp-crash',
+        logcatDelta: [
+          '01-02 03:04:05.678  1234  1234 E AndroidRuntime: FATAL EXCEPTION: main',
+        ],
+        isNewScreen: true,
+        screenshotBase64: 'cG5n',
+        imageMediaType: 'image/png',
+      });
+    const mkClient = () =>
+      fakeClaude(async () => ({
+        findings: [
+          {
+            category: 'C',
+            severity: 'med',
+            summary: 'unlabeled fab',
+            element: 'fab-btn',
+            reasoning: 'no accessible label on the floating action button',
+          },
+        ],
+      })).client;
+
+    const first = await evaluate(baseState({ runId: 'run-1' }), makeCtx(), cfg, mkClient());
+    const second = await evaluate(baseState({ runId: 'run-1' }), makeCtx(), cfg, mkClient());
+
+    expect(first.length).toBeGreaterThan(0);
+    expect(second.map((f) => f.id)).toEqual(first.map((f) => f.id));
+    for (const f of first) {
+      expect(f.id).toMatch(/^[0-9a-f]{16}$/);
+    }
   });
 
   it('does not throw when the vision response fails schema validation', async () => {
