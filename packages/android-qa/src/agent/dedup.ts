@@ -1,5 +1,6 @@
 import type { Finding, Severity } from '../types/index';
 import { findingTupleKey } from './finding-keys';
+import { JACCARD_THRESHOLD, jaccard, tokenize } from './similarity';
 
 /**
  * Severity ordering used to pick the "winner" Finding when merging duplicates.
@@ -12,14 +13,6 @@ const SEVERITY_RANK: Record<Severity, number> = {
   high: 2,
   critical: 3,
 };
-
-/**
- * Jaccard similarity threshold for fuzzy summary matching. Strictly greater
- * than this value triggers a merge; equal does not. Tuned empirically for
- * short QA-style summaries where 0.7 catches near-paraphrases without
- * collapsing obviously distinct issues.
- */
-const JACCARD_THRESHOLD = 0.7;
 
 /**
  * Collapse near-duplicate findings across an entire run into a canonical list.
@@ -172,27 +165,4 @@ function mergeIndices(source: Finding[], indices: number[]): Finding {
   if (winner.linearIssueId !== undefined) merged.linearIssueId = winner.linearIssueId;
   if (winner.artifactRefs !== undefined) merged.artifactRefs = { ...winner.artifactRefs };
   return merged;
-}
-
-/**
- * Lowercase and split on non-alphanumeric runs. Unicode-normalization is out
- * of scope — the spec targets English/ASCII QA summaries.
- */
-function tokenize(summary: string): Set<string> {
-  const words = summary.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-  return new Set(words);
-}
-
-/**
- * Jaccard similarity = |A ∩ B| / |A ∪ B|. Defined as 0 when both sets are
- * empty so two degenerate summaries never merge on vacuous similarity.
- */
-function jaccard(a: Set<string>, b: Set<string>): number {
-  if (a.size === 0 && b.size === 0) return 0;
-  let intersection = 0;
-  for (const token of a) {
-    if (b.has(token)) intersection += 1;
-  }
-  const union = a.size + b.size - intersection;
-  return union === 0 ? 0 : intersection / union;
 }
