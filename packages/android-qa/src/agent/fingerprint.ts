@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { XMLParser } from 'fast-xml-parser';
-import type { Fingerprint } from '../types/index';
+import type { Fingerprint, ViewNode } from '../types/index';
 
 /**
  * Compute a stable screen fingerprint from an Android uiautomator hierarchy XML.
@@ -31,6 +31,32 @@ export function fingerprintFromXml(xml: string, activity: string): Fingerprint {
 
   const payload = activity + '\n' + tuples.join('\n');
   return createHash('sha1').update(payload).digest('hex').slice(0, 16);
+}
+
+/**
+ * Compute a stable screen fingerprint from a parsed `ViewNode` tree. Produces
+ * the same 16-hex result as `fingerprintFromXml` for structurally-equivalent
+ * input: walks every node with a non-empty `resourceId`, emits
+ * `"${resourceId}|${className}|${clickable}"` tuples using `"true"` / `"false"`
+ * strings for `clickable`, sorts lexicographically, then SHA-1 hashes
+ * `activity + "\n" + tuples.join("\n")` and returns the 16-char prefix.
+ */
+export function fingerprintFromTree(tree: ViewNode, activity: string): Fingerprint {
+  const tuples: string[] = [];
+  collectTreeTuples(tree, tuples);
+  tuples.sort();
+  const payload = activity + '\n' + tuples.join('\n');
+  return createHash('sha1').update(payload).digest('hex').slice(0, 16);
+}
+
+function collectTreeTuples(node: ViewNode, tuples: string[]): void {
+  if (node.resourceId && node.resourceId.length > 0) {
+    const clickable = node.clickable ? 'true' : 'false';
+    tuples.push(`${node.resourceId}|${node.className}|${clickable}`);
+  }
+  for (const child of node.children) {
+    collectTreeTuples(child, tuples);
+  }
 }
 
 /**

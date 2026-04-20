@@ -1,6 +1,6 @@
-import { createHash } from 'node:crypto';
 import type { Driver } from '../device/driver';
 import type { Fingerprint, ViewNode } from '../types/index';
+import { fingerprintFromTree } from './fingerprint';
 
 export interface LoginCredentials {
   email: string;
@@ -140,34 +140,6 @@ function findFirst(tree: ViewNode, predicate: (n: ViewNode) => boolean): ViewNod
     if (hit) return hit;
   }
   return null;
-}
-
-/**
- * Structural fingerprint of a parsed view tree, matching the algorithm in
- * `fingerprint.ts#fingerprintFromXml` exactly: walk every node with a non-empty
- * `resourceId`, emit `"${resourceId}|${className}|${clickable}"` tuples using
- * `"true"` / `"false"` strings for `clickable`, sort lexicographically, then
- * SHA-1 hash `activity + "\n" + tuples.join("\n")` and return the 16-char prefix.
- *
- * TODO(Task-3-dedup): extract the shared tuple/hash logic so `fingerprintFromXml`
- * and this helper both call it, instead of duplicating ~15 lines.
- */
-function fingerprintFromTree(tree: ViewNode, activity: string): Fingerprint {
-  const tuples: string[] = [];
-  collectTreeTuples(tree, tuples);
-  tuples.sort();
-  const payload = activity + '\n' + tuples.join('\n');
-  return createHash('sha1').update(payload).digest('hex').slice(0, 16);
-}
-
-function collectTreeTuples(node: ViewNode, tuples: string[]): void {
-  if (node.resourceId && node.resourceId.length > 0) {
-    const clickable = node.clickable ? 'true' : 'false';
-    tuples.push(`${node.resourceId}|${node.className}|${clickable}`);
-  }
-  for (const child of node.children) {
-    collectTreeTuples(child, tuples);
-  }
 }
 
 function sleep(ms: number): Promise<void> {
