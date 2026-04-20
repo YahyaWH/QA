@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
+import { copyFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { customAlphabet } from 'nanoid';
@@ -7,6 +7,8 @@ import { loadConfig } from '../src/config/index';
 import { ClaudeClient } from '../src/agent/claude';
 import { run } from '../src/agent/orchestrator';
 import { AppiumDriver } from '../src/device/appium-driver';
+import type { AppiumServerHandle } from '../src/device/appium-server';
+import type { EmulatorHandle } from '../src/device/emulator';
 import {
   extractApkVersion,
   installApk,
@@ -82,6 +84,55 @@ function findingTurnOffsetMs(
   return null;
 }
 
+/**
+ * Resources that must be torn down on exit (normal or signal). Populated as
+ * each resource is successfully created in `main()` and consumed by the
+ * SIGINT/SIGTERM handlers as defence-in-depth against Ctrl+C leaking the
+ * emulator (~6GB) and Appium (blocks port 4723 for subsequent runs).
+ */
+interface ShutdownRefs {
+  videoRecorder?: VideoRecorder;
+  videoStarted?: boolean;
+  logcatTail?: LogcatTail;
+  logcatStarted?: boolean;
+  driver?: AppiumDriver;
+  appiumServer?: AppiumServerHandle;
+  emulator?: EmulatorHandle;
+}
+
+const shutdown: ShutdownRefs = {};
+
+async function teardownAll(refs: ShutdownRefs): Promise<void> {
+  if (refs.videoRecorder && refs.videoStarted) {
+    await tryTeardown('video', () => refs.videoRecorder!.stop());
+  }
+  if (refs.logcatTail && refs.logcatStarted) {
+    await tryTeardown('logcat', () => refs.logcatTail!.stop());
+  }
+  if (refs.driver) await tryTeardown('driver', () => refs.driver!.stop());
+  if (refs.appiumServer) await tryTeardown('appium', () => refs.appiumServer!.stop());
+  if (refs.emulator) await tryTeardown('emulator', () => refs.emulator!.stop());
+}
+
+// Defence-in-depth: Ctrl+C (SIGINT) or a supervisor's SIGTERM would otherwise
+// skip main()'s finally block, leaking the emulator process, Appium server,
+// `adb logcat`, and `adb shell screenrecord` as orphans — the next run then
+// fails on port 4723 and the emulator lingers as a ~6GB process. Running
+// teardown here before exit keeps those transient resources bounded.
+let sigReceived = false;
+for (const sig of ['SIGINT', 'SIGTERM'] as const) {
+  process.once(sig, async () => {
+    if (sigReceived) process.exit(130);
+    sigReceived = true;
+    console.error(`[explore] ${sig} — tearing down`);
+    try {
+      await teardownAll(shutdown);
+    } finally {
+      process.exit(130);
+    }
+  });
+}
+
 /** Parse `--role <name>` out of argv. Ignored when not provided. */
 function parseRoleArg(argv: string[]): string | undefined {
   const idx = argv.indexOf('--role');
@@ -143,14 +194,14 @@ async function main(): Promise<number> {
 
   log('starting emulator...');
   const emulator = await startEmulator(config.device.avdName, config.device.sdkRoot);
-  let appiumServer: Awaited<ReturnType<typeof startAppium>> | null = null;
-  let driver: AppiumDriver | null = null;
+  shutdown.emulator = emulator;
+
   const logcatTail = new LogcatTail();
   const videoRecorder = new VideoRecorder();
-  let logcatStarted = false;
-  let videoStarted = false;
+  shutdown.logcatTail = logcatTail;
+  shutdown.videoRecorder = videoRecorder;
+
   let recorder: Recorder | null = null;
-  let session: SessionState | null = null;
   let exitCode = 1;
 
   try {
@@ -163,24 +214,26 @@ async function main(): Promise<number> {
     log(`appVersion=${appVersion}`);
 
     log('starting Appium...');
-    appiumServer = await startAppium(config.device.appiumHost, config.device.appiumPort);
+    const appiumServer = await startAppium(config.device.appiumHost, config.device.appiumPort);
+    shutdown.appiumServer = appiumServer;
 
     log('creating driver session...');
-    driver = new AppiumDriver({
+    const driver = new AppiumDriver({
       appiumUrl: `http://${config.device.appiumHost}:${config.device.appiumPort}`,
       avdName: config.device.avdName,
       apkPath: config.device.apkPath,
       appPackage: APP_PACKAGE,
     });
     await driver.start();
+    shutdown.driver = driver;
     log('driver session created');
 
     await logcatTail.start();
-    logcatStarted = true;
+    shutdown.logcatStarted = true;
     log('logcat tail started');
 
     await videoRecorder.start(runDir);
-    videoStarted = true;
+    shutdown.videoStarted = true;
     log('video recording started');
 
     const claude = new ClaudeClient({ apiKey: config.agent.apiKey, model: config.agent.model });
@@ -204,7 +257,7 @@ async function main(): Promise<number> {
     recorder = new Recorder({ runDir, initialState });
 
     log('starting agent loop...');
-    session = await run({
+    const session = await run({
       driver,
       claude,
       recorder,
@@ -236,18 +289,24 @@ async function main(): Promise<number> {
       `new=${counts.new ?? 0} previously-seen=${counts['previously-seen'] ?? 0} resurrected=${counts.resurrected ?? 0}`,
     );
 
-    if (classified.length > 0) {
-      await appendFindings(classified);
-    }
-
+    // Slice BEFORE appending to history — sliceArtifacts mutates each
+    // finding's `artifactRefs`, and the JSONL snapshot must reflect those
+    // refs so downstream consumers (publisher, report parser) can resolve
+    // per-finding assets without re-scanning the run directory.
     log('slicing artifacts...');
-    await sliceArtifacts(session, runDir, logcatTail, videoRecorder, recorder);
+    await sliceArtifacts(session, runDir, logcatTail, videoRecorder);
+
+    if (session.findings.length > 0) {
+      await appendFindings(session.findings);
+    }
 
     log('writing report.md');
     const md = render({ session, history, runDir });
     await writeFile(join(runDir, 'report.md'), md, 'utf8');
 
-    await recorder.updateState({ findings: classified });
+    // Single post-slice persist — session.json now reflects the enriched
+    // findings (with artifactRefs) and matches what the JSONL history holds.
+    await recorder.updateState({ findings: session.findings });
 
     exitCode = session.status === 'completed' ? 0 : 1;
   } catch (err) {
@@ -259,38 +318,52 @@ async function main(): Promise<number> {
     exitCode = 1;
   } finally {
     log('tearing down...');
-    // Capture into consts so the narrowing survives across the arrow closures —
-    // TypeScript won't narrow `let`-bindings inside a callback.
-    const d = driver;
-    const a = appiumServer;
-    if (videoStarted) await tryTeardown('video', () => videoRecorder.stop());
-    if (logcatStarted) await tryTeardown('logcat', () => logcatTail.stop());
-    if (d) await tryTeardown('driver', () => d.stop());
-    if (a) await tryTeardown('appium', () => a.stop());
-    await tryTeardown('emulator', () => emulator.stop());
+    await teardownAll(shutdown);
+    // Zero out the refs so the signal path, if it fires after normal return,
+    // becomes a no-op (stopChild is idempotent, but this keeps the log clean).
+    shutdown.videoStarted = false;
+    shutdown.logcatStarted = false;
+    shutdown.driver = undefined;
+    shutdown.appiumServer = undefined;
+    shutdown.emulator = undefined;
     log(`done; exiting ${exitCode}`);
   }
   return exitCode;
 }
 
 /**
- * Populate each finding's `artifactRefs` with paths to per-finding assets:
- *   - `screenshot`: pre-action screenshot for the first turn observing this
- *     screen (always relative to `runDir`).
- *   - `logcat`: 30s logcat excerpt around that turn's start, only for
- *     category-A findings (crashes/ANRs are the ones with logcat signal).
- *   - `video`: 7s clip (-2s .. +5s) around that turn, only when `video.mp4`
- *     exists AND ffmpeg is available (VideoRecorder.clip handles both as
- *     soft failures so we probe via existsSync first).
+ * Human-facing display id — first 4 hex chars of the 16-char SHA-1 prefix,
+ * prefixed `f-`. Must stay in sync with `src/report/render.ts:displayId`,
+ * because the report's hardcoded artifact paths use this exact directory name.
+ */
+function findingDisplayId(id: string): string {
+  return `f-${id.slice(0, 4)}`;
+}
+
+/**
+ * Write per-finding asset files at the paths the report renderer hardcodes:
+ *   - `findings/<f-XXXX>/before.png`       — post-action screenshot (the
+ *     orchestrator only writes `turn-NNNN-post.png` today).
+ *   - `findings/<f-XXXX>/logcat-excerpt.log` — 30s logcat window, category A only.
+ *   - `findings/<f-XXXX>/clip.mp4`          — 15s clip (-5s .. +10s) around the
+ *     turn, only when `video.mp4` and ffmpeg are both available.
  *
- * Mutates `session.findings` in place.
+ * Also populates each finding's `artifactRefs` with matching relative paths
+ * so the JSONL history carries the refs for downstream consumers. Mutates
+ * `session.findings` in place.
+ *
+ * TODO(task-27): the clip-window offset is computed from cumulative
+ * per-turn `ms` values, which start from the first turn AFTER login. Login
+ * duration itself is not in `session.history`, so clip timestamps drift by
+ * the login wall-time (~15-30s today). Correct once per-turn wall-clock
+ * timestamps are threaded through SessionState. Widening the window to
+ * -5s / +10s is a hedge until then.
  */
 async function sliceArtifacts(
   session: SessionState,
   runDir: string,
   logcatTail: LogcatTail,
   videoRecorder: VideoRecorder,
-  recorder: Recorder,
 ): Promise<void> {
   const videoPath = join(runDir, 'video.mp4');
   const videoExists = existsSync(videoPath);
@@ -301,39 +374,44 @@ async function sliceArtifacts(
     const loc = findingTurnOffsetMs(finding, session.history);
     if (!loc) continue;
 
+    const displayId = findingDisplayId(finding.id);
+    const findingDir = join(runDir, 'findings', displayId);
+    mkdirSync(findingDir, { recursive: true });
+
     const refs: NonNullable<Finding['artifactRefs']> = { ...(finding.artifactRefs ?? {}) };
 
-    // Screenshot: the recorder saves pre-action shots as turn-NNNN-pre.png,
-    // but the orchestrator only records turn-NNNN-post.png today. Probe for
-    // either so we still link something usable.
     const turnIdx = loc.turnIdx.toString().padStart(4, '0');
-    const preShot = join('screenshots', `turn-${turnIdx}-pre.png`);
-    const postShot = join('screenshots', `turn-${turnIdx}-post.png`);
-    if (existsSync(join(runDir, preShot))) {
-      refs.screenshot = preShot.replaceAll('\\', '/');
-    } else if (existsSync(join(runDir, postShot))) {
-      refs.screenshot = postShot.replaceAll('\\', '/');
+    const postShot = join(runDir, 'screenshots', `turn-${turnIdx}-post.png`);
+    if (existsSync(postShot)) {
+      const dest = join(findingDir, 'before.png');
+      try {
+        await copyFile(postShot, dest);
+        refs.screenshot = `findings/${displayId}/before.png`;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error(`[explore] copy screenshot ${finding.id} failed: ${message}`);
+      }
     }
 
     if (finding.category === 'A' && Number.isFinite(startMs)) {
       const centerTs = startMs + loc.offsetMs;
       const lines = logcatTail.excerpt(centerTs, 30_000);
       if (lines.length > 0) {
-        const rel = join('findings', `${finding.id}.log.txt`);
+        const rel = `findings/${displayId}/logcat-excerpt.log`;
         await writeFile(join(runDir, rel), lines.join('\n') + '\n', 'utf8');
-        refs.logcat = rel.replaceAll('\\', '/');
+        refs.logcat = rel;
       }
     }
 
     if (videoExists) {
-      const clipRel = join('findings', `${finding.id}.mp4`);
+      const clipRel = `findings/${displayId}/clip.mp4`;
       const clipPath = join(runDir, clipRel);
-      const clipStart = Math.max(0, loc.offsetMs - 2_000);
-      const clipEnd = loc.offsetMs + 5_000;
+      const clipStart = Math.max(0, loc.offsetMs - 5_000);
+      const clipEnd = loc.offsetMs + 10_000;
       try {
         await videoRecorder.clip(videoPath, clipStart, clipEnd, clipPath);
         if (existsSync(clipPath)) {
-          refs.video = clipRel.replaceAll('\\', '/');
+          refs.video = clipRel;
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -343,12 +421,6 @@ async function sliceArtifacts(
 
     session.findings[i] = { ...finding, artifactRefs: refs };
   }
-
-  // Touch the recorder so session.json reflects the enriched findings; the
-  // caller writes once more after `render` so this is technically redundant,
-  // but keeping it locked-in here means a crash during render still leaves a
-  // consistent on-disk snapshot.
-  await recorder.updateState({ findings: session.findings });
 }
 
 main().then(
