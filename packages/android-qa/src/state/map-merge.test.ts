@@ -180,6 +180,65 @@ describe('mergeRunIntoMap', () => {
     expect(merged.lastSeen).toBe('2026-02-02T00:00:00.000Z');
   });
 
+  it('refreshes role and text from the session while preserving resourceId', () => {
+    const existingEl = element({
+      resourceId: 'btn-x',
+      role: 'button',
+      text: 'Old Label',
+    });
+    const sessionEl = element({
+      resourceId: 'btn-x',
+      role: 'menuitem',
+      text: 'New Label',
+    });
+    const existing = persistedScreen(
+      'fp1',
+      'Main',
+      { 'btn-x': existingEl },
+      { firstSeenRun: 'r-old', lastSeenRun: 'r-old', seenCount: 1 },
+    );
+    const sess = session({
+      runId: 'r-new',
+      screens: { fp1: screen('fp1', 'Main', { 'btn-x': sessionEl }) },
+    });
+
+    const result = mergeRunIntoMap(emptyMap({ screens: { fp1: existing } }), sess);
+    const merged = result.screens['fp1'].elements['btn-x'];
+    expect(merged.resourceId).toBe('btn-x');
+    expect(merged.role).toBe('menuitem');
+    expect(merged.text).toBe('New Label');
+  });
+
+  it('earliestIso and latestIso pick correctly regardless of which side is earlier/later', () => {
+    const existingEl = element({
+      resourceId: 'btn',
+      firstSeen: '2026-03-01T00:00:00.000Z',
+      lastSeen: '2026-04-01T00:00:00.000Z',
+    });
+    const sessionEl = element({
+      resourceId: 'btn',
+      firstSeen: '2026-01-15T00:00:00.000Z',
+      lastSeen: '2026-03-15T00:00:00.000Z',
+    });
+    const existing = persistedScreen(
+      'fp1',
+      'Main',
+      { btn: existingEl },
+      { firstSeenRun: 'r-old', lastSeenRun: 'r-old', seenCount: 1 },
+    );
+    const sess = session({
+      runId: 'r-new',
+      screens: { fp1: screen('fp1', 'Main', { btn: sessionEl }) },
+    });
+
+    const result = mergeRunIntoMap(emptyMap({ screens: { fp1: existing } }), sess);
+    const merged = result.screens['fp1'].elements['btn'];
+    // Session's firstSeen is earlier -> session wins.
+    expect(merged.firstSeen).toBe('2026-01-15T00:00:00.000Z');
+    // Existing's lastSeen is later -> existing wins.
+    expect(merged.lastSeen).toBe('2026-04-01T00:00:00.000Z');
+  });
+
   it('transitions: new (from, via, to) added from history', () => {
     const action: Action = { kind: 'tap', elementId: 'btn-login' };
     const sess = session({

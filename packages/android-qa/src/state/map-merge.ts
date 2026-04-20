@@ -132,6 +132,11 @@ function mergeScreen(
 
 /**
  * Merge an incoming session-side `ViewElement` into an existing element.
+ * `resourceId` is preserved from the existing element (it's the identity key
+ * under which the element is indexed, so changing it would be incoherent).
+ * `role` and `text` are refreshed from the session because the session is the
+ * latest source of truth for user-visible element metadata (labels/roles can
+ * shift between app versions).
  * - `tapped` becomes true if either side observed a tap.
  * - `firstSeen` keeps the earliest ISO; `lastSeen` keeps the latest.
  * - Outcomes are merged by `action` key — counts summed, session's
