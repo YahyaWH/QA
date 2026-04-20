@@ -126,4 +126,46 @@ describe('Recorder', () => {
     expect((await readFile(postPath)).toString()).toBe('post-bytes');
     expect((await readFile(highPath)).toString()).toBe('high-bytes');
   });
+
+  it('concurrent appendTurn calls are serialized and preserved in call order', async () => {
+    const rec = new Recorder({ runDir, initialState: makeInitialState() });
+
+    const turns: Turn[] = [
+      { turn: 1, screenFp: 'a', action: { kind: 'tap', elementId: 'btn-1' }, outcomeFp: 'b', ms: 10 },
+      { turn: 2, screenFp: 'b', action: { kind: 'tap', elementId: 'btn-2' }, outcomeFp: 'c', ms: 20 },
+      { turn: 3, screenFp: 'c', action: { kind: 'tap', elementId: 'btn-3' }, outcomeFp: 'd', ms: 30 },
+      { turn: 4, screenFp: 'd', action: { kind: 'tap', elementId: 'btn-4' }, outcomeFp: 'e', ms: 40 },
+      { turn: 5, screenFp: 'e', action: { kind: 'tap', elementId: 'btn-5' }, outcomeFp: 'f', ms: 50 },
+    ];
+
+    await Promise.all(turns.map((t) => rec.appendTurn(t)));
+
+    const parsed = JSON.parse(await readFile(join(runDir, 'session.json'), 'utf8')) as SessionState;
+    expect(parsed.history).toHaveLength(5);
+    expect(parsed.history.map((h) => h.turn)).toEqual([1, 2, 3, 4, 5]);
+    expect(parsed.history[0]).toEqual(turns[0]);
+    expect(parsed.history[4]).toEqual(turns[4]);
+  });
+
+  it('cleans up session.json.tmp on write failure', async () => {
+    const rec = new Recorder({ runDir, initialState: makeInitialState() });
+
+    // Remove runDir to force write failure on the next appendTurn.
+    await rm(runDir, { recursive: true, force: true });
+
+    await expect(
+      rec.appendTurn({
+        turn: 1,
+        screenFp: 'a',
+        action: { kind: 'tap', elementId: 'btn-1' },
+        outcomeFp: 'b',
+        ms: 10,
+      }),
+    ).rejects.toThrow();
+
+    // Re-create the run dir and verify no dangling tmp file leaks.
+    const { mkdir } = await import('node:fs/promises');
+    await mkdir(runDir, { recursive: true });
+    await expect(stat(join(runDir, 'session.json.tmp'))).rejects.toThrow();
+  });
 });
