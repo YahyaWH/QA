@@ -148,6 +148,13 @@ cached IDs.
   enabled (`ls /dev/kvm` + you're in the `kvm` group).
 - If `adb devices` shows the emulator as `offline`, run
   `adb kill-server && adb start-server` and retry.
+- **Windows iGPU / "Failed to load opengl32sw":** set
+  `ANDROID_EMULATOR_GPU=swiftshader_indirect` and
+  `ANDROID_EMULATOR_NO_WINDOW=1` in your `.env`. The default GPU backend
+  picks Vulkan, which the Android emulator's bundled loader often rejects
+  on AMD iGPUs (Radeon 780M and similar), then fails to fall back because
+  the Qt software-OpenGL DLL is missing from the install. Forcing the
+  swiftshader path avoids both.
 
 ### `Error: listen EADDRINUSE: port 4723`
 Appium's port is held by a previous run. Either:

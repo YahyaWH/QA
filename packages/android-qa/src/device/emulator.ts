@@ -28,6 +28,17 @@ export interface EmulatorHandle {
  * The child is spawned detached: false, stdio: 'ignore' so it lives for exactly
  * as long as the parent keeps the handle around. If the child exits on its own
  * (e.g. bad AVD name) the `stop()` method becomes a no-op.
+ *
+ * Env-var overrides (both optional):
+ *   ANDROID_EMULATOR_GPU       — passed through as `-gpu <value>`. Common
+ *                                values: `host`, `swiftshader_indirect`,
+ *                                `angle_indirect`. Leave unset to let the
+ *                                emulator auto-select. On machines where
+ *                                the default crashes with "Failed to load
+ *                                opengl32sw" (Win11, iGPU-only), try
+ *                                `swiftshader_indirect`.
+ *   ANDROID_EMULATOR_NO_WINDOW — `1` adds `-no-window -no-audio`. Use for
+ *                                headless agent runs / CI.
  */
 export async function startEmulator(avdName: string, sdkRoot: string): Promise<EmulatorHandle> {
   const emulatorBin =
@@ -36,6 +47,13 @@ export async function startEmulator(avdName: string, sdkRoot: string): Promise<E
       : path.join(sdkRoot, 'emulator', 'emulator');
 
   const args = ['-avd', avdName, '-no-snapshot-save', '-no-boot-anim'];
+  const gpu = process.env.ANDROID_EMULATOR_GPU;
+  if (gpu) {
+    args.push('-gpu', gpu);
+  }
+  if (process.env.ANDROID_EMULATOR_NO_WINDOW === '1') {
+    args.push('-no-window', '-no-audio');
+  }
   console.log(`[emulator] spawning ${emulatorBin} ${args.join(' ')}`);
   const child = spawn(emulatorBin, args, {
     detached: false,
