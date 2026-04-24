@@ -7,6 +7,7 @@
  * otherwise).
  */
 
+import 'dotenv/config';
 import { runExplore } from '../src/cli/run-explore';
 
 runExplore(process.argv.slice(2)).then(

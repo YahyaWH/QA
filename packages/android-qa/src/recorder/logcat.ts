@@ -31,6 +31,12 @@ export interface CrashInfo {
 export interface LogcatTailOptions {
   adbPath?: string;
   /**
+   * Device serial to scope the `adb logcat` call to (`adb -s <serial> logcat`).
+   * Required once more than one emulator is running on the host; optional when
+   * only the default emulator is present.
+   */
+  serial?: string;
+  /**
    * Optional injected spawner — used by tests to feed synthetic stdout.
    * Defaults to `child_process.spawn` when omitted.
    */
@@ -40,13 +46,14 @@ export interface LogcatTailOptions {
 /**
  * Long-running `adb logcat` tail with in-memory buffering and crash detection.
  *
- * Spawns `adb logcat -T 1 -v threadtime`, parses each line's timestamp prefix,
- * and buffers `{ ts, raw }` in memory. Callers ask for deltas since a
- * per-turn start time, scan windows for crashes, or pull excerpts around a
- * center timestamp for report attachments.
+ * Spawns `adb [-s <serial>] logcat -T 1 -v threadtime`, parses each line's
+ * timestamp prefix, and buffers `{ ts, raw }` in memory. Callers ask for
+ * deltas since a per-turn start time, scan windows for crashes, or pull
+ * excerpts around a center timestamp for report attachments.
  */
 export class LogcatTail {
   private readonly adbPath: string;
+  private readonly serial: string | undefined;
   private readonly spawner: (cmd: string, args: string[]) => ChildProcess;
   private child: ChildProcess | null = null;
   private rl: readline.Interface | null = null;
@@ -54,6 +61,7 @@ export class LogcatTail {
 
   constructor(opts: LogcatTailOptions = {}) {
     this.adbPath = opts.adbPath ?? 'adb';
+    this.serial = opts.serial;
     this.spawner = opts.spawner ?? ((cmd: string, args: string[]): ChildProcess => spawn(cmd, args));
   }
 
@@ -66,7 +74,10 @@ export class LogcatTail {
   async start(): Promise<void> {
     if (this.child) return;
 
-    const child = this.spawner(this.adbPath, ['logcat', '-T', '1', '-v', 'threadtime']);
+    const args = this.serial
+      ? ['-s', this.serial, 'logcat', '-T', '1', '-v', 'threadtime']
+      : ['logcat', '-T', '1', '-v', 'threadtime'];
+    const child = this.spawner(this.adbPath, args);
     this.child = child;
 
     const stdout = child.stdout;

@@ -19,6 +19,7 @@
  * ANTHROPIC_API_KEY is required — the CLI makes live vision calls.
  */
 
+import 'dotenv/config';
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

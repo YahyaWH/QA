@@ -65,3 +65,13 @@ onboarding-output/snapshots/
 
 # Android QA per-run artifacts
 output/android-qa/
+
+# Android QA per-run state shards (merged into state/app-map.json by merge-shards)
+packages/android-qa/state/shards/
+
+# Android APK binaries (too large, not source code)
+*.apk
+
+# Claude Code local state (personal, not shared)
+.claude/scheduled_tasks.lock
+.claude/settings.local.json

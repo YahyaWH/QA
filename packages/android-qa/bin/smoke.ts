@@ -17,6 +17,7 @@
  * Exit: 0 when both assertions hold, 1 otherwise.
  */
 
+import 'dotenv/config';
 import { runExplore } from '../src/cli/run-explore';
 
 const log = (msg: string): void => {

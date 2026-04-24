@@ -23,6 +23,7 @@ import { AppiumDriver } from '../device/appium-driver';
 import type { AppiumServerHandle } from '../device/appium-server';
 import type { EmulatorHandle } from '../device/emulator';
 import {
+  DEFAULT_EMULATOR_CONSOLE_PORT,
   extractApkVersion,
   installApk,
   startEmulator,
@@ -33,19 +34,24 @@ import { LogcatTail } from '../recorder/logcat';
 import { Recorder } from '../recorder/recorder';
 import { VideoRecorder } from '../recorder/video';
 import { render } from '../report/render';
-import { loadAppMap, saveAppMap } from '../state/app-map';
+import {
+  defaultAppMapPath,
+  loadAppMap,
+  saveAppMap,
+} from '../state/app-map';
 import { classifyAgainstHistory } from '../state/cross-run-dedup';
 import {
   appendFindings,
+  defaultFindingsHistoryPath,
   readHistory,
 } from '../state/findings-history';
 import { mergeRunIntoMap } from '../state/map-merge';
 import type { Finding, SessionState } from '../types/index';
 
-// TODO(task-27): move appPackage into config once a WASTEHERO_APP_PACKAGE env
-// var is introduced. For now we use the canonical id used across fixtures,
-// the design doc, and the planning spec.
-const APP_PACKAGE = 'com.wastehero';
+// Canonical package id for the WasteHero Android app. Overridable via env so
+// dev builds under a different applicationId suffix can be driven without a
+// code change.
+const APP_PACKAGE = process.env.WASTEHERO_APP_PACKAGE ?? 'com.wastehero_mobileapp_navigator';
 
 const log = (msg: string): void => {
   console.log(`[explore] ${msg}`);
@@ -62,9 +68,11 @@ async function tryTeardown(label: string, fn: () => Promise<void>): Promise<void
 
 /**
  * runIds are `run-YYYYMMDD-HHMM-<nanoid(4)>` in UTC. Stable, sortable, and
- * unique-per-run even when the same minute is retried.
+ * unique-per-run even when the same minute is retried. When an explicit
+ * instance index is passed, it's embedded as `-iN-` so parallel runs never
+ * collide on the run directory name.
  */
-function newRunId(): string {
+function newRunId(instanceIndex?: number): string {
   const suffix = customAlphabet('0123456789abcdef', 4);
   const now = new Date();
   const pad = (n: number): string => n.toString().padStart(2, '0');
@@ -73,7 +81,91 @@ function newRunId(): string {
   const dd = pad(now.getUTCDate());
   const hh = pad(now.getUTCHours());
   const mi = pad(now.getUTCMinutes());
-  return `run-${yyyy}${mm}${dd}-${hh}${mi}-${suffix()}`;
+  const instanceSuffix = typeof instanceIndex === 'number' ? `-i${instanceIndex}` : '';
+  return `run-${yyyy}${mm}${dd}-${hh}${mi}${instanceSuffix}-${suffix()}`;
+}
+
+/**
+ * Instance-level resource allocation. Driven by `ANDROID_QA_INSTANCE_INDEX`
+ * (0-based). When unset, behaves exactly like the legacy single-instance
+ * pipeline — no extra flags, default ports, canonical state files.
+ *
+ * When set (parallel mode), every externally-bindable resource is offset by
+ * the index so N instances don't collide:
+ *   - emulator console port = 5554 + i*2 (adb port = console+1)
+ *   - emulator serial       = `emulator-<console_port>`
+ *   - Appium port           = 4723 + i
+ *   - read-only AVD boot    = true (every instance shares the base image;
+ *                             wipe-installs the APK fresh on boot anyway)
+ *   - state shards          = state/shards/<runId>.{app-map.json,findings.jsonl}
+ *   - run directory suffix  = `-i<index>`
+ */
+interface InstanceAllocation {
+  index: number | null;
+  consolePort: number;
+  serial: string;
+  appiumPort: number;
+  readOnly: boolean;
+  shard: boolean;
+}
+
+function resolveInstance(configAppiumPort: number): InstanceAllocation {
+  const raw = process.env.ANDROID_QA_INSTANCE_INDEX;
+  if (raw === undefined || raw === '') {
+    return {
+      index: null,
+      consolePort: DEFAULT_EMULATOR_CONSOLE_PORT,
+      serial: `emulator-${DEFAULT_EMULATOR_CONSOLE_PORT}`,
+      appiumPort: configAppiumPort,
+      readOnly: process.env.ANDROID_EMULATOR_READ_ONLY === '1',
+      shard: false,
+    };
+  }
+  const index = Number(raw);
+  if (!Number.isInteger(index) || index < 0) {
+    throw new Error(`ANDROID_QA_INSTANCE_INDEX must be a non-negative integer, got ${raw}`);
+  }
+  const consolePort = DEFAULT_EMULATOR_CONSOLE_PORT + index * 2;
+  return {
+    index,
+    consolePort,
+    serial: `emulator-${consolePort}`,
+    appiumPort: configAppiumPort + index,
+    // Default to read-only in parallel mode — overridable via env for debug.
+    readOnly: process.env.ANDROID_EMULATOR_READ_ONLY !== '0',
+    shard: true,
+  };
+}
+
+/**
+ * Resolve the on-disk paths used for app-map + findings-history reads/writes.
+ *
+ * Reads always come from the canonical state files — every instance sees the
+ * same baseline. Writes are routed to `state/shards/<runId>.*` when sharding
+ * is enabled so parallel instances don't clobber each other; a post-run
+ * `merge-shards` step reconciles them back into canonical.
+ */
+function resolveStatePaths(
+  runId: string,
+  shard: boolean,
+): { readAppMap: string; writeAppMap: string; readHistory: string; writeHistory: string } {
+  const canonicalAppMap = defaultAppMapPath();
+  const canonicalHistory = defaultFindingsHistoryPath();
+  if (!shard) {
+    return {
+      readAppMap: canonicalAppMap,
+      writeAppMap: canonicalAppMap,
+      readHistory: canonicalHistory,
+      writeHistory: canonicalHistory,
+    };
+  }
+  const shardsDir = fileURLToPath(new URL('../../state/shards/', import.meta.url));
+  return {
+    readAppMap: canonicalAppMap,
+    writeAppMap: join(shardsDir, `${runId}.app-map.json`),
+    readHistory: canonicalHistory,
+    writeHistory: join(shardsDir, `${runId}.findings.jsonl`),
+  };
 }
 
 /**
@@ -210,8 +302,9 @@ export interface RunExploreResult {
 export async function runExplore(argv: string[]): Promise<RunExploreResult> {
   const config = loadConfig();
   const role = pickRole(argv, config.auth.roles);
+  const instance = resolveInstance(config.device.appiumPort);
 
-  const runId = newRunId();
+  const runId = newRunId(instance.index ?? undefined);
   // `runDir` resolves off `import.meta.url` so Windows quirks around cwd don't
   // matter. `src/cli/run-explore.ts` → repo root is four `..` segments.
   const runDir = join(
@@ -220,20 +313,33 @@ export async function runExplore(argv: string[]): Promise<RunExploreResult> {
   );
   mkdirSync(runDir, { recursive: true });
 
+  const statePaths = resolveStatePaths(runId, instance.shard);
+
   log(`runId=${runId}`);
   log(`runDir=${runDir}`);
   log(`role=${role}`);
+  if (instance.index !== null) {
+    log(
+      `instance=${instance.index} serial=${instance.serial} appiumPort=${instance.appiumPort} readOnly=${instance.readOnly}`,
+    );
+    log(`shard=${statePaths.writeAppMap}`);
+  }
 
-  const appMap = await loadAppMap();
-  const history = await readHistory();
+  const appMap = await loadAppMap(statePaths.readAppMap);
+  const history = await readHistory(statePaths.readHistory);
   log(`app-map screens=${Object.keys(appMap.screens).length} history findings=${history.length}`);
 
   log('starting emulator...');
-  const emulator = await startEmulator(config.device.avdName, config.device.sdkRoot);
+  const emulator = await startEmulator({
+    avdName: config.device.avdName,
+    sdkRoot: config.device.sdkRoot,
+    consolePort: instance.consolePort,
+    readOnly: instance.readOnly,
+  });
   shutdown.emulator = emulator;
 
-  const logcatTail = new LogcatTail();
-  const videoRecorder = new VideoRecorder();
+  const logcatTail = new LogcatTail({ serial: emulator.serial });
+  const videoRecorder = new VideoRecorder({ serial: emulator.serial });
   shutdown.logcatTail = logcatTail;
   shutdown.videoRecorder = videoRecorder;
 
@@ -258,24 +364,28 @@ export async function runExplore(argv: string[]): Promise<RunExploreResult> {
   let session: SessionState = initialState;
 
   try {
-    await waitForBoot();
+    // Cold boots on Win11 + swiftshader_indirect (and post-reboot first-runs) routinely
+    // take 2-3 min, so 120s is too aggressive. Env override for slower hosts / debug.
+    const bootTimeoutMs = Number(process.env.ANDROID_EMULATOR_BOOT_TIMEOUT_MS ?? 300_000);
+    await waitForBoot(emulator.serial, bootTimeoutMs);
     log('emulator booted');
 
     log('installing APK...');
-    await installApk(config.device.apkPath);
-    const appVersion = await extractApkVersion(config.device.apkPath);
+    await installApk(config.device.apkPath, emulator.serial);
+    const appVersion = await extractApkVersion(config.device.apkPath, config.device.sdkRoot);
     log(`appVersion=${appVersion}`);
 
     log('starting Appium...');
-    const appiumServer = await startAppium(config.device.appiumHost, config.device.appiumPort);
+    const appiumServer = await startAppium(config.device.appiumHost, instance.appiumPort);
     shutdown.appiumServer = appiumServer;
 
     log('creating driver session...');
     const driver = new AppiumDriver({
-      appiumUrl: `http://${config.device.appiumHost}:${config.device.appiumPort}`,
+      appiumUrl: `http://${config.device.appiumHost}:${instance.appiumPort}`,
       avdName: config.device.avdName,
       apkPath: config.device.apkPath,
       appPackage: APP_PACKAGE,
+      udid: emulator.serial,
     });
     await driver.start();
     shutdown.driver = driver;
@@ -311,7 +421,7 @@ export async function runExplore(argv: string[]): Promise<RunExploreResult> {
 
     log('merging run into app-map...');
     const nextMap = mergeRunIntoMap(appMap, session);
-    await saveAppMap(nextMap);
+    await saveAppMap(nextMap, statePaths.writeAppMap);
 
     log('classifying findings against history...');
     const classified = classifyAgainstHistory(session.findings, history);
@@ -335,7 +445,7 @@ export async function runExplore(argv: string[]): Promise<RunExploreResult> {
     await sliceArtifacts(session, runDir, logcatTail, videoRecorder);
 
     if (session.findings.length > 0) {
-      await appendFindings(session.findings);
+      await appendFindings(session.findings, statePaths.writeHistory);
     }
 
     log('writing report.md');

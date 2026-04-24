@@ -17,6 +17,7 @@
  * driver on the same screen the recorded turn #0 was captured from.
  */
 
+import 'dotenv/config';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -124,17 +125,20 @@ async function main(): Promise<number> {
   }
 
   log('starting emulator...');
-  const emulator = await startEmulator(config.device.avdName, config.device.sdkRoot);
+  const emulator = await startEmulator({
+    avdName: config.device.avdName,
+    sdkRoot: config.device.sdkRoot,
+  });
   let appiumServer: Awaited<ReturnType<typeof startAppium>> | null = null;
   let driver: AppiumDriver | null = null;
   let exitCode = 1;
 
   try {
-    await waitForBoot();
+    await waitForBoot(emulator.serial);
     log('emulator booted');
 
     log('installing APK...');
-    await installApk(config.device.apkPath);
+    await installApk(config.device.apkPath, emulator.serial);
 
     log('starting Appium...');
     appiumServer = await startAppium(config.device.appiumHost, config.device.appiumPort);
@@ -145,6 +149,7 @@ async function main(): Promise<number> {
       avdName: config.device.avdName,
       apkPath: config.device.apkPath,
       appPackage: APP_PACKAGE,
+      udid: emulator.serial,
     });
     await driver.start();
 

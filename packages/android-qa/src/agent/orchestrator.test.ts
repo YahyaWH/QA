@@ -9,7 +9,8 @@ import { Recorder } from '../recorder/recorder';
 import type { LogcatTail } from '../recorder/logcat';
 import type { ClaudeClient } from './claude';
 import { run } from './orchestrator';
-import type { Action, AppMap, Finding, SessionState } from '../types/index';
+import { fingerprintFromXml } from './fingerprint';
+import type { Action, AppMap, Finding, PersistedScreen, SessionState } from '../types/index';
 
 /**
  * Build a minimal viable Claude-client stub whose `callJson` is an awaitable
@@ -216,8 +217,12 @@ describe('orchestrator.run', () => {
   });
 
   it('aborts with aborted-auth when login throws LoginFailedError', async () => {
+    // A realistic "wrong screen" with some app-specific content but no email
+    // field. Framework-wrapper-only trees are treated as "still rendering" by
+    // waitForLoginForm, so the test needs at least one non-wrapper resource-id
+    // to trigger the stability bail-out quickly.
     const blankXml =
-      '<?xml version="1.0"?><hierarchy rotation="0"><node index="0" class="android.widget.FrameLayout" bounds="[0,0][100,100]"/></hierarchy>';
+      '<?xml version="1.0"?><hierarchy rotation="0"><node index="0" resource-id="com.wastehero:id/dashboard" class="android.widget.FrameLayout" bounds="[0,0][100,100]"/></hierarchy>';
     const driver = new FakeDriver({
       screens: [{ xml: blankXml, activity: '.LoginActivity' }],
       transitions: {},
@@ -594,6 +599,75 @@ describe('orchestrator.run', () => {
     // Turn indices are 1-based in the recorder's filenames.
     const first = join(runDir, 'screenshots', 'turn-0001-post.png');
     expect(existsSync(first)).toBe(true);
+  });
+
+  it('carries forward tapped / outcomes / marked from appMap when a screen is revisited in a later run', async () => {
+    // Regression for the "run N+1 wipes prior-run tapped state" loop: without
+    // carry-forward, every first-visit-this-session on a previously-seen
+    // screen builds a fresh element set with tapped=false, the frontier
+    // re-promotes everything to priority 100, and decide's alphabetical
+    // fallback sticks on the same target (e.g. `android:id/content`) forever.
+    const driver = makeScriptedDriver(2);
+    await driver.start();
+
+    const { client, callJson } = makeClaude();
+    // First decide call lands on the home screen (post-login). Return done
+    // immediately so we isolate the buildScreen-seed behaviour: no in-run
+    // tap should run before we inspect state.screens.
+    callJson.mockResolvedValueOnce(decideResp({ kind: 'done', reason: 'inspect' }));
+
+    // The post-login home screen's fingerprint is deterministic.
+    const homeFp = fingerprintFromXml(screenXml('btn-1'), '.HomeActivity1');
+    const priorScreen: PersistedScreen = {
+      fingerprint: homeFp,
+      activity: '.HomeActivity1',
+      elements: {
+        'com.wastehero:id/btn-1': {
+          resourceId: 'com.wastehero:id/btn-1',
+          role: 'android.widget.Button',
+          text: 'btn-1',
+          firstSeen: '2026-01-01T00:00:00.000Z',
+          lastSeen: '2026-01-01T00:00:00.000Z',
+          tapped: true,
+          outcomes: [
+            { action: 'tap', ledToScreen: 'fp-other', count: 3 },
+          ],
+          marked: 'broken',
+        },
+      },
+      firstSeenRun: 'run-prev',
+      lastSeenRun: 'run-prev',
+      seenCount: 1,
+    };
+    const seededAppMap: AppMap = {
+      ...emptyAppMap(),
+      screens: { [homeFp]: priorScreen },
+    };
+
+    const recorder = new Recorder({ runDir, initialState: emptySession('run-carry', 5) });
+    const session = await run({
+      driver,
+      claude: client,
+      recorder,
+      config: makeConfig({ turnBudget: 5 }),
+      appMap: seededAppMap,
+      history: [],
+      role: 'admin',
+    });
+
+    expect(session.status).toBe('completed');
+    // Done was returned on turn 1 — no in-run taps could have set this flag,
+    // so if it's true, it came from the appMap carry-forward.
+    const home = session.screens[homeFp];
+    expect(home).toBeDefined();
+    const btn = home.elements['com.wastehero:id/btn-1'];
+    expect(btn.tapped).toBe(true);
+    expect(btn.outcomes).toEqual([
+      { action: 'tap', ledToScreen: 'fp-other', count: 3 },
+    ]);
+    expect(btn.marked).toBe('broken');
+    // firstSeen comes from the prior run; lastSeen is the fresh observation.
+    expect(btn.firstSeen).toBe('2026-01-01T00:00:00.000Z');
   });
 });
 

@@ -168,6 +168,74 @@ describe('decide', () => {
     expect(result.reasoning).toMatch(/fallback:/);
   });
 
+  it('fallback skips frontier entries matching the last no-progress action', async () => {
+    // Regression for the run-4 loop: when Claude proposes repeating the last no-progress
+    // tap, decide falls back — but the OLD fallback dispatched frontier[0] unconditionally.
+    // If frontier[0] was the same target (e.g. `project-next-button` sitting at priority 80
+    // because of a stale outcome), we re-dispatched the rejected action and looped forever.
+    // The fallback now walks past repeats and lands on the next viable entry.
+    const lastAction: Action = { kind: 'tap', elementId: 'project-next-button' };
+    const state = baseState({
+      screens: {
+        A: screen(
+          {
+            'project-next-button': elem(),
+            'other-button': elem(),
+          },
+          'A',
+        ),
+      },
+      history: [
+        { turn: 1, screenFp: 'A', action: lastAction, outcomeFp: 'A', ms: 100 },
+      ],
+    });
+    const frontier: FrontierEntry[] = [
+      { screenFp: 'A', elementId: 'project-next-button', priority: 80 },
+      { screenFp: 'A', elementId: 'other-button', priority: 80 },
+    ];
+    const { client } = fakeClaude({
+      action: { kind: 'tap', elementId: 'project-next-button' },
+      reasoning: 'try once more',
+    });
+
+    const result = await decide(
+      { state, frontier, denyActions: [], triagedFindings: [] },
+      { model: 'claude-opus-4-7' },
+      client,
+    );
+
+    expect(result.action).toEqual({ kind: 'tap', elementId: 'other-button' });
+    expect(result.reasoning).toMatch(/fallback:/);
+  });
+
+  it('fallback emits back when every frontier entry is the repeat', async () => {
+    // Pathological case: the only frontier candidate on this screen IS the repeat.
+    // Dispatching it would loop; we must break out via back instead.
+    const lastAction: Action = { kind: 'tap', elementId: 'stuck' };
+    const state = baseState({
+      screens: { A: screen({ stuck: elem() }, 'A') },
+      history: [
+        { turn: 1, screenFp: 'A', action: lastAction, outcomeFp: 'A', ms: 100 },
+      ],
+    });
+    const frontier: FrontierEntry[] = [
+      { screenFp: 'A', elementId: 'stuck', priority: 80 },
+    ];
+    const { client } = fakeClaude({
+      action: { kind: 'tap', elementId: 'stuck' },
+      reasoning: 'try once more',
+    });
+
+    const result = await decide(
+      { state, frontier, denyActions: [], triagedFindings: [] },
+      { model: 'claude-opus-4-7' },
+      client,
+    );
+
+    expect(result.action).toEqual({ kind: 'back' });
+    expect(result.reasoning).toBe('fallback: frontier saturated with repeats');
+  });
+
   it('returns {kind:"back"} when frontier is empty and Claude returns garbage', async () => {
     const state = baseState();
     const { client } = fakeClaude({ something: 'not a valid response' });

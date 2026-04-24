@@ -19,6 +19,12 @@ export interface AppiumDriverOptions {
   apkPath: string;
   /** Android package id of the app under test, used by `isAppAlive` + `relaunchApp`. */
   appPackage: string;
+  /**
+   * Main activity to launch. Defaults to `${appPackage}.MainActivity` which
+   * matches the WasteHero APK; override when a different launch intent is
+   * required (e.g. a demo build with a different entry activity).
+   */
+  appActivity?: string;
   /** Specific device/emulator UDID. Omitted capability if unset. */
   udid?: string;
   /** Auto-grant runtime permissions on install. Default `true`. */
@@ -60,16 +66,35 @@ export class AppiumDriver implements Driver {
   async start(): Promise<void> {
     const url = new URL(this.options.appiumUrl);
     const port = url.port ? Number(url.port) : 4723;
-    const path = url.pathname === '/' || url.pathname === '' ? '/wd/hub' : url.pathname;
+    // Appium 2 serves at `/` by default (no `/wd/hub` prefix). Only honor a
+    // caller-provided path if they set one explicitly.
+    const path = url.pathname === '' ? '/' : url.pathname;
 
     const capabilities: Record<string, unknown> = {
       platformName: 'Android',
       'appium:automationName': 'UIAutomator2',
-      'appium:avd': this.options.avdName,
       'appium:app': this.options.apkPath,
+      // Explicit package + activity so Appium launches the target activity
+      // even when the APK is already installed (in which case `app` alone is
+      // a no-op and the session lands on whatever is currently foreground).
+      'appium:appPackage': this.options.appPackage,
+      'appium:appActivity': this.options.appActivity ?? `${this.options.appPackage}.MainActivity`,
+      // Ensure the app is force-stopped + relaunched each session so we
+      // never start on a stale screen from a previous run.
+      'appium:forceAppLaunch': true,
       'appium:autoGrantPermissions': this.options.autoGrantPermissions ?? true,
     };
-    if (this.options.udid) capabilities['appium:udid'] = this.options.udid;
+    // udid and avd are both valid ways to target a device, but in parallel mode
+    // every instance shares the same AVD name and the uiautomator2 driver will
+    // resolve `avd` to the FIRST running emulator matching it (regardless of
+    // `udid`). That hijacks another instance's device and crashes both runs.
+    // When we have a udid (we always boot the emulator ourselves and pass its
+    // serial), skip avd entirely — udid uniquely identifies the target device.
+    if (this.options.udid) {
+      capabilities['appium:udid'] = this.options.udid;
+    } else {
+      capabilities['appium:avd'] = this.options.avdName;
+    }
     if (this.options.platformVersion) {
       capabilities['appium:platformVersion'] = this.options.platformVersion;
     }

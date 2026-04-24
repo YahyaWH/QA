@@ -79,6 +79,7 @@ export async function run(opts: RunOptions): Promise<SessionState> {
     await login(driver, config.auth.roles[role]);
   } catch (err) {
     if (err instanceof LoginFailedError) {
+      console.error(`[explore] login failed: ${err.message}`);
       return finalizeRun(state, recorder, 'aborted-auth');
     }
     return finalizeWithError(state, recorder, err);
@@ -134,12 +135,15 @@ export async function run(opts: RunOptions): Promise<SessionState> {
       const isNewScreen = state.screens[perceived.fp] === undefined;
       const nowIso = new Date().toISOString();
       const screen: Screen = isNewScreen
-        ? buildScreen(perceived.tree, perceived.activity, nowIso, perceived.fp)
+        ? buildScreen(perceived.tree, perceived.activity, nowIso, perceived.fp, appMap)
         : state.screens[perceived.fp];
 
       if (isNewScreen) {
         state.screens[perceived.fp] = screen;
-        const newEntries = buildFrontier(screen, appMap, { currentRunId: state.runId });
+        const newEntries = buildFrontier(screen, appMap, {
+          currentRunId: state.runId,
+          sessionScreens: state.screens,
+        });
         state.frontier = mergeFrontier(state.frontier, newEntries, perceived.fp);
       }
 
@@ -212,6 +216,13 @@ export async function run(opts: RunOptions): Promise<SessionState> {
         outcomeFp = null;
       }
 
+      // Mark the acted-on element (if any) as tapped and append an outcome.
+      // Then rebuild the frontier for the origin screen so the next turn sees
+      // an updated priority list — without this, the element stays at
+      // priority 100 forever and decide keeps picking the same target.
+      recordActionOutcome(state, perceived.fp, decision.action, outcomeFp);
+      refreshFrontierForScreen(state, appMap, perceived.fp);
+
       const elapsed = now() - turnStart;
       await appendTurn(recorder, state, turnIdx, perceived.fp, decision.action, outcomeFp, elapsed);
     }
@@ -267,15 +278,38 @@ async function observeOutcome(driver: Driver): Promise<{ fp: Fingerprint; shot: 
  * Convert the captured view tree into a `Screen` with one `ViewElement` per
  * resource-id-bearing node. Elements start untapped with empty outcomes so
  * the frontier can promote them on the first pass.
+ *
+ * When this fingerprint already exists in the persisted `appMap`, carry
+ * forward `tapped` / `outcomes` / `marked` from the prior run's record so the
+ * frontier can correctly demote elements that were already probed. Without
+ * this carry-forward, every first-visit-this-session on a previously-seen
+ * screen wipes run history to `tapped=false`, the frontier re-promotes every
+ * element to priority 100, and decide's alphabetical-tiebreak fallback loops
+ * on the same target (e.g. `android:id/content`) indefinitely.
  */
 function buildScreen(
   tree: ViewNode,
   activity: string,
   nowIso: string,
   fp: Fingerprint,
+  appMap: AppMap,
 ): Screen {
   const elements: Record<string, ViewElement> = {};
   walkForElements(tree, elements, nowIso);
+  const persisted = appMap.screens[fp];
+  if (persisted) {
+    for (const id of Object.keys(elements)) {
+      const prior = persisted.elements[id];
+      if (!prior) continue;
+      elements[id] = {
+        ...elements[id],
+        firstSeen: prior.firstSeen,
+        tapped: prior.tapped,
+        outcomes: prior.outcomes.map((o) => ({ ...o })),
+        ...(prior.marked !== undefined ? { marked: prior.marked } : {}),
+      };
+    }
+  }
   return { fingerprint: fp, activity, elements };
 }
 
@@ -298,6 +332,62 @@ function walkForElements(
   for (const child of node.children) {
     walkForElements(child, out, nowIso);
   }
+}
+
+/**
+ * Update the acted-on element's `tapped` flag and outcome tally on the origin
+ * screen. No-op for actions without an element id (`swipe`, `back`, `done`).
+ * Outcomes are keyed by `(action.kind, ledToScreen)` so repeats collapse into
+ * a count instead of duplicating entries.
+ */
+function recordActionOutcome(
+  state: SessionState,
+  screenFp: Fingerprint,
+  action: Action,
+  outcomeFp: Fingerprint | null,
+): void {
+  const elementId = actionElementId(action);
+  if (elementId === null) return;
+  const screen = state.screens[screenFp];
+  if (!screen) return;
+  const element = screen.elements[elementId];
+  if (!element) return;
+  element.tapped = true;
+  element.lastSeen = new Date().toISOString();
+  const existing = element.outcomes.find(
+    (o) => o.action === action.kind && o.ledToScreen === outcomeFp,
+  );
+  if (existing) {
+    existing.count += 1;
+  } else {
+    element.outcomes.push({ action: action.kind, ledToScreen: outcomeFp, count: 1 });
+  }
+}
+
+function actionElementId(action: Action): string | null {
+  switch (action.kind) {
+    case 'tap':
+    case 'type':
+    case 'scrollTo':
+      return action.elementId;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Rebuild the frontier slice for `screenFp` from the current in-memory screen
+ * state and splice it back into `state.frontier`. Keeps other screens' entries
+ * intact. Called after each acted turn so newly-tapped elements drop in priority.
+ */
+function refreshFrontierForScreen(state: SessionState, appMap: AppMap, screenFp: Fingerprint): void {
+  const screen = state.screens[screenFp];
+  if (!screen) return;
+  const rebuilt = buildFrontier(screen, appMap, {
+    currentRunId: state.runId,
+    sessionScreens: state.screens,
+  });
+  state.frontier = mergeFrontier(state.frontier, rebuilt, screenFp);
 }
 
 /**
@@ -343,8 +433,11 @@ async function dispatchAction(driver: Driver, action: Action): Promise<void> {
 }
 
 /**
- * Try one `relaunchApp()`. Returns true iff the app is alive afterward. Any
- * thrown error from relaunch is treated as an un-recoverable device death.
+ * Try one `relaunchApp()`, then poll `isAppAlive` for up to ~3s to give Android time
+ * to bring the freshly-activated app back to the foreground. `activateApp` returns as
+ * soon as the intent is dispatched, but `queryAppState` can briefly report state=3
+ * (background-suspended) before the window regains focus. Without polling, a benign
+ * `back`-to-launcher followed by relaunch looked like an un-recoverable device death.
  */
 async function tryRecoverDevice(driver: Driver): Promise<boolean> {
   try {
@@ -352,11 +445,15 @@ async function tryRecoverDevice(driver: Driver): Promise<boolean> {
   } catch {
     return false;
   }
-  try {
-    return await driver.isAppAlive();
-  } catch {
-    return false;
+  for (let attempt = 0; attempt < 10; attempt++) {
+    try {
+      if (await driver.isAppAlive()) return true;
+    } catch {
+      return false;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 300));
   }
+  return false;
 }
 
 /** `isAppAlive` with a swallowed exception — absence of a truthy result == dead. */

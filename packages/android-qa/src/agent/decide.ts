@@ -292,20 +292,27 @@ function duplicatesLastNoProgressAction(action: Action, state: SessionState): bo
 }
 
 /**
- * Deterministic fallback used whenever Claude's answer is unusable. Picks the top
- * frontier entry as a tap, or emits `back` when the frontier is empty (to keep the
- * agent making progress instead of stalling).
+ * Deterministic fallback used whenever Claude's answer is unusable. Walks the frontier
+ * top-down, skipping entries whose tap would repeat the immediately-prior no-progress
+ * action — otherwise the old behaviour (pick `frontier[0]` unconditionally) dispatched the
+ * same target we just rejected, and the loop went nowhere. Emits `back` when no viable
+ * non-duplicate entry remains.
  */
 function fallback(ctx: DecideContext, reason: string): DecideResult {
-  const top = ctx.frontier[0];
-  if (!top) {
-    return {
-      action: { kind: 'back' },
-      reasoning: 'fallback: empty frontier',
-    };
+  const { frontier, state } = ctx;
+  const last = state.history[state.history.length - 1];
+  const lastWasNoProgress =
+    last !== undefined && (last.outcomeFp === null || last.outcomeFp === last.screenFp);
+  const blockedAction = lastWasNoProgress ? last.action : null;
+  for (const entry of frontier) {
+    const candidate: Action = { kind: 'tap', elementId: entry.elementId };
+    if (blockedAction !== null && JSON.stringify(candidate) === JSON.stringify(blockedAction)) {
+      continue;
+    }
+    return { action: candidate, reasoning: reason };
   }
   return {
-    action: { kind: 'tap', elementId: top.elementId },
-    reasoning: reason,
+    action: { kind: 'back' },
+    reasoning: frontier.length === 0 ? 'fallback: empty frontier' : 'fallback: frontier saturated with repeats',
   };
 }

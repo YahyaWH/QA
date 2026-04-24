@@ -1,7 +1,23 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 import path from 'node:path';
 import { stopChild } from './emulator';
+
+function resolveBin(binName: string): string {
+  let dir = process.cwd();
+  while (true) {
+    const candidate = path.join(dir, 'node_modules', '.bin', binName);
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      return path.resolve(process.cwd(), 'node_modules', '.bin', binName);
+    }
+    dir = parent;
+  }
+}
 
 /**
  * Handle to a running Appium server child process.
@@ -29,7 +45,7 @@ export interface AppiumServerHandle {
  */
 export async function startAppium(host: string, port: number): Promise<AppiumServerHandle> {
   const binName = process.platform === 'win32' ? 'appium.cmd' : 'appium';
-  const binPath = path.resolve(process.cwd(), 'node_modules', '.bin', binName);
+  const binPath = resolveBin(binName);
 
   const args = [
     '--address',
@@ -38,13 +54,13 @@ export async function startAppium(host: string, port: number): Promise<AppiumSer
     String(port),
     '--log-no-colors',
     '--log-level',
-    'warn',
+    'info',
   ];
   console.log(`[appium] spawning ${binPath} ${args.join(' ')}`);
 
   const child = spawn(binPath, args, {
     detached: false,
-    stdio: 'ignore',
+    stdio: ['ignore', 'inherit', 'inherit'],
     windowsHide: true,
     shell: false,
   });

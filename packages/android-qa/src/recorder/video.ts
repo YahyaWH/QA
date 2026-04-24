@@ -9,6 +9,12 @@ const execFileAsync = promisify(execFile);
 
 export interface VideoRecorderOptions {
   adbPath?: string;
+  /**
+   * Device serial to scope `adb shell screenrecord` + `adb pull` to
+   * (`adb -s <serial> ...`). Required once more than one emulator is running
+   * on the host; optional when only the default emulator is present.
+   */
+  serial?: string;
   /** Path to the `ffmpeg` binary. Defaults to `'ffmpeg'` (on PATH). */
   ffmpegPath?: string;
   /** Per-segment cap in ms. `adb screenrecord` enforces a 180s limit. */
@@ -33,6 +39,7 @@ export interface VideoRecorderOptions {
  */
 export class VideoRecorder {
   private readonly adbPath: string;
+  private readonly serial: string | undefined;
   private readonly ffmpegPath: string;
   private readonly segmentMs: number;
   private readonly bitRate: number;
@@ -47,10 +54,20 @@ export class VideoRecorder {
 
   constructor(opts: VideoRecorderOptions = {}) {
     this.adbPath = opts.adbPath ?? 'adb';
+    this.serial = opts.serial;
     this.ffmpegPath = opts.ffmpegPath ?? 'ffmpeg';
     this.segmentMs = opts.segmentMs ?? 180_000;
     this.bitRate = opts.bitRate ?? 4_000_000;
     this.remotePathPrefix = opts.remotePathPrefix ?? '/sdcard/run';
+  }
+
+  /**
+   * Prepend `-s <serial>` to an adb argv when a per-device serial is set.
+   * Kept as a tiny helper because every adb invocation in this class needs
+   * the same scoping and duplicating the ternary inline would drift.
+   */
+  private adbArgs(rest: string[]): string[] {
+    return this.serial ? ['-s', this.serial, ...rest] : rest;
   }
 
   /**
@@ -102,7 +119,7 @@ export class VideoRecorder {
       const remote = `${this.remotePathPrefix}-${i}.mp4`;
       const local = join(runDir, `segment-${i}.mp4`);
       try {
-        await execFileAsync(this.adbPath, ['pull', remote, local]);
+        await execFileAsync(this.adbPath, this.adbArgs(['pull', remote, local]));
         localSegments.push(local);
       } catch (err) {
         console.error(`[video] adb pull ${remote} failed: ${String(err)}`);
@@ -205,7 +222,7 @@ export class VideoRecorder {
     // adb screenrecord takes --time-limit in seconds; default 180s cap.
     const timeLimitSec = Math.floor(this.segmentMs / 1000);
 
-    const args = [
+    const args = this.adbArgs([
       'shell',
       'screenrecord',
       '--bit-rate',
@@ -213,9 +230,10 @@ export class VideoRecorder {
       '--time-limit',
       String(timeLimitSec),
       remote,
-    ];
+    ]);
 
-    console.log(`[video] spawning segment ${index}: ${this.adbPath} ${args.join(' ')}`);
+    const label = this.serial ? `video:${this.serial}` : 'video';
+    console.log(`[${label}] spawning segment ${index}: ${this.adbPath} ${args.join(' ')}`);
     const child = spawn(this.adbPath, args, { stdio: 'ignore', windowsHide: true });
     this.currentChild = child;
     this.segmentCount = index + 1;

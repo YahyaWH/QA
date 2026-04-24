@@ -5,30 +5,33 @@
   "type": "module",
   "scripts": {
     "explore": "tsx bin/explore.ts",
+    "diag-login": "tsx bin/diag-login.ts",
     "publish": "tsx bin/publish.ts",
     "smoke": "tsx bin/smoke.ts",
     "replay": "tsx bin/replay.ts",
     "eval-judgment": "tsx bin/eval-judgment.ts",
     "reset-state": "tsx bin/reset-state.ts",
+    "merge-shards": "tsx bin/merge-shards.ts",
+    "explore:parallel": "tsx bin/explore-parallel.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "webdriverio": "^8.38.0",
     "appium": "^2.5.0",
-    "appium-uiautomator2-driver": "^3.0.0",
-    "simple-git": "^3.24.0",
     "dotenv": "^16.4.0",
-    "zod": "^3.23.0",
     "fast-xml-parser": "^4.3.0",
-    "nanoid": "^5.0.0"
+    "nanoid": "^5.0.0",
+    "simple-git": "^3.24.0",
+    "webdriverio": "^8.38.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",
-    "typescript": "^5.4.0",
+    "appium-uiautomator2-driver": "^2.45.1",
     "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
     "vitest": "^2.0.0"
   }
 }

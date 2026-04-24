@@ -19,6 +19,14 @@ export interface FrontierOptions {
    * treating any screen not seen this run as stale (see band-3 note below).
    */
   reValidateEveryNRuns?: number;
+  /**
+   * Screens the agent has observed THIS run (keyed by fingerprint). Optional because tests may omit
+   * it, but the orchestrator always passes `state.screens` so band-2 / band-3 reflect fresh taps.
+   * Without this, `leadsToUnexploredScreen` reads only the `appMap` (the end-of-prior-run snapshot),
+   * so a tapped element whose outcome self-loops keeps reporting its target as "has untapped
+   * elements" forever — that's how run 3 spent 449 turns on `android:id/content`.
+   */
+  sessionScreens?: Record<Fingerprint, Screen>;
 }
 
 /**
@@ -44,14 +52,26 @@ export function buildFrontier(
   appMap: AppMap,
   opts: FrontierOptions,
 ): FrontierEntry[] {
-  const { currentRunId } = opts;
+  const { currentRunId, sessionScreens } = opts;
   const persisted = appMap.screens[screen.fingerprint];
-  const screenSeenThisRun = persisted !== undefined && persisted.lastSeenRun === currentRunId;
+  const session = sessionScreens ?? {};
+  // A screen counts as "seen this run" if either:
+  //   (a) it's already in session state (the orchestrator always inserts into state.screens
+  //       before calling buildFrontier for the current screen), or
+  //   (b) it's absent from the persisted appMap entirely (freshly discovered this run), or
+  //   (c) the persisted record's `lastSeenRun` happens to match (kept for tests / completeness;
+  //       rarely triggers in practice because the appMap only merges at end-of-run).
+  // Without (a), re-visiting a persisted screen mid-run re-promotes every tapped element at
+  // priority 60 via band-3 even though we're ACTIVELY on it.
+  const screenSeenThisRun =
+    session[screen.fingerprint] !== undefined ||
+    persisted === undefined ||
+    persisted.lastSeenRun === currentRunId;
 
   const entries: FrontierEntry[] = [];
 
   for (const [elementId, element] of Object.entries(screen.elements)) {
-    const priority = classify(element, appMap, screenSeenThisRun);
+    const priority = classify(element, appMap, session, screenSeenThisRun);
     if (priority === null) continue;
     entries.push({ screenFp: screen.fingerprint, elementId, priority });
   }
@@ -71,6 +91,7 @@ export function buildFrontier(
 function classify(
   element: ViewElement,
   appMap: AppMap,
+  sessionScreens: Record<Fingerprint, Screen>,
   screenSeenThisRun: boolean,
 ): number | null {
   if (element.marked === 'deny-listed') return null;
@@ -83,9 +104,9 @@ function classify(
   // Band 1: never tapped.
   if (!element.tapped) return 100;
 
-  // Band 2: tapped, but at least one recorded outcome points to a screen in the map that still
+  // Band 2: tapped, but at least one recorded outcome points to a screen that still
   // has an untapped element.
-  if (leadsToUnexploredScreen(element, appMap)) return 80;
+  if (leadsToUnexploredScreen(element, appMap, sessionScreens)) return 80;
 
   // Band 3: screen is stale (not seen this run) — tapped elements on stale screens are re-probe
   // candidates at priority 60.
@@ -96,14 +117,22 @@ function classify(
 }
 
 /**
- * True when any recorded outcome of `element` points to a screen that exists in the app map and
- * still contains at least one element with `tapped === false`.
+ * True when any recorded outcome of `element` points to a screen that still contains at
+ * least one untapped element. Prefers the live `sessionScreens` view because the session is
+ * fresher than the `appMap` (which only merges at end-of-run), which matters for self-looping
+ * taps: once the session has tapped every element on the target screen, the self-loop correctly
+ * reports "nothing more to find here" instead of re-inflating its source element to priority 80.
  */
-function leadsToUnexploredScreen(element: ViewElement, appMap: AppMap): boolean {
+function leadsToUnexploredScreen(
+  element: ViewElement,
+  appMap: AppMap,
+  sessionScreens: Record<Fingerprint, Screen>,
+): boolean {
   for (const outcome of element.outcomes) {
     const target = outcome.ledToScreen;
     if (target === null) continue;
-    const targetScreen = appMap.screens[target as Fingerprint];
+    const targetScreen =
+      sessionScreens[target as Fingerprint] ?? appMap.screens[target as Fingerprint];
     if (targetScreen === undefined) continue;
     for (const child of Object.values(targetScreen.elements)) {
       if (!child.tapped) return true;

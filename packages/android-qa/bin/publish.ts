@@ -24,6 +24,7 @@
  * if any candidate failed — partial success still commits the successes.
  */
 
+import 'dotenv/config';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
