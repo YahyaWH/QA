@@ -145,6 +145,8 @@ If `done: true`, stop the loop and call `/finalize`.
 If `budgetExpired: true`, stop and call `/finalize`.
 If `outcomeFp === null`, the observation failed — `/perceive` next turn will re-establish state, no need to special-case.
 
+**CRITICAL: always `/perceive` after `fpChanged: true`.** Screen *details* (element list, frontier priorities, deterministic findings) are captured only on `/perceive` — the `outcomeFp` returned by `/act` is just a fingerprint marker. If you chain multiple `/act` calls back-to-back across new fingerprints, the canonical app-map records the *transitions* but loses the *screen contents*. That's how the first real run only captured 2 of 7 new screens with full detail. The strict pattern is `/perceive → /act → /perceive → /act → …`, never `act → act → perceive`.
+
 ### 5. Update the user every ~10 turns
 
 Keep the user oriented without flooding chat: after every ~10 acted turns, post a one-line summary — turn count, current fingerprint, screens visited, findings found, budget remaining. Skip per-turn status dumps; stay quiet during the working loop unless something interesting happens (new screen, crash, finding).
