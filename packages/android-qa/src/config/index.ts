@@ -1,5 +1,5 @@
 const DEFAULTS = {
-  AGENT_MODEL: 'claude-opus-4-7',
+  AGENT_MODEL: 'claude-opus-4-6',
   AGENT_VISION_EVERY_N_TURNS: '10',
   AGENT_WALL_CLOCK_MIN: '30',
   AGENT_TURN_BUDGET: '500',

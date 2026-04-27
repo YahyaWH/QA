@@ -4,21 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "explore": "tsx bin/explore.ts",
+    "qa-server": "tsx bin/qa-server.ts",
     "diag-login": "tsx bin/diag-login.ts",
     "publish": "tsx bin/publish.ts",
-    "smoke": "tsx bin/smoke.ts",
     "replay": "tsx bin/replay.ts",
-    "eval-judgment": "tsx bin/eval-judgment.ts",
     "reset-state": "tsx bin/reset-state.ts",
-    "merge-shards": "tsx bin/merge-shards.ts",
-    "explore:parallel": "tsx bin/explore-parallel.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
     "appium": "^2.5.0",
     "dotenv": "^16.4.0",
     "fast-xml-parser": "^4.3.0",

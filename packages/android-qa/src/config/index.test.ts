@@ -12,7 +12,7 @@ describe('loadConfig', () => {
       ANDROID_SDK_ROOT: '/sdk',
       WASTEHERO_APK_PATH: '/apk',
     });
-    expect(cfg.agent.model).toBe('claude-opus-4-7');
+    expect(cfg.agent.model).toBe('claude-opus-4-6');
     expect(cfg.agent.wallClockMinutes).toBe(30);
     expect(cfg.agent.visionEveryNTurns).toBe(10);
     expect(cfg.device.avdName).toBe('Pixel_7_API_34');

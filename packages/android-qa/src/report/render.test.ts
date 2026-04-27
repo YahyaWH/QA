@@ -610,4 +610,5 @@ describe('render', () => {
     // Original message is preserved with backticks replaced by single quotes.
     expect(codeSpanBody).toContain("something went 'wrong' here");
   });
+
 });

@@ -1,4 +1,4 @@
-import { stringifyAction } from '../agent/decide';
+import { stringifyAction } from '../agent/handlers';
 import type {
   AppMap,
   PersistedScreen,

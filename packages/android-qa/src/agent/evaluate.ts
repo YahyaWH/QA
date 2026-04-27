@@ -1,6 +1,4 @@
 import { createHash } from 'node:crypto';
-import { z } from 'zod';
-import { ClaudeClient, MalformedJsonError } from './claude';
 import { findingTupleKey } from './finding-keys';
 import type {
   Category,
@@ -12,10 +10,13 @@ import type {
 } from '../types/index';
 
 /**
- * Inputs the evaluate step needs from the orchestrator. These are things the
- * orchestrator is in the best position to compute (screen-fingerprint diffing,
- * logcat delta since last turn, captured screenshot bytes), so we accept them
- * as a struct rather than re-deriving them here.
+ * Inputs the evaluate step needs from the perceive layer. The orchestrator (or
+ * qa-server) computes screen fingerprint diffing and logcat delta, so this
+ * accepts them as a struct rather than re-deriving here.
+ *
+ * The vision pass that used to run via Claude API was removed when the
+ * skill-driven flow took over — Claude Code reviews screenshots natively. This
+ * module is now purely deterministic: logcat scan + tree text scan.
  */
 export interface EvaluateContext {
   currentScreenFp: Fingerprint;
@@ -23,102 +24,16 @@ export interface EvaluateContext {
   currentTree: ViewNode | null;
   /** Raw logcat lines since the previous turn (e.g. from LogcatTail.getDelta). */
   logcatDelta: string[];
-  /** True on the first turn this fingerprint is seen this run. */
-  isNewScreen: boolean;
-  /**
-   * True when the orchestrator decides the tree is worth a vision pass even
-   * off-cadence — empty tree, unchanged-post-action, error-looking text, etc.
-   */
-  treeSuspicious: boolean;
-  /** null => skip vision even if one of the triggers fires. */
-  screenshotBase64: string | null;
-  imageMediaType: 'image/png' | 'image/jpeg';
-}
-
-export interface EvaluateConfig {
-  model: string;
-  /** Even off-trigger, every Nth turn gets a vision pass. 0/negative disables. */
-  visionEveryNTurns: number;
 }
 
 /**
- * Zod schema for the vision response. The model returns the interesting fields
- * (category, severity, summary, element, reasoning); the evaluator fills in
- * runId/screenFp/id/status on our side. The inner finding schema is `.strict()`
- * so unknown model-added fields fail parsing and surface prompt drift during
- * development; the outer envelope stays lenient so a future extra top-level
- * field doesn't take down the whole pass.
+ * Run the deterministic evaluation pass over a perceived turn: logcat scan +
+ * tree-text scan. Findings are de-duplicated by (screenFp, element, category)
+ * so logcat and tree-scan don't double-report the same crash banner.
  */
-const CategorySchema: z.ZodType<Category> = z.enum(['A', 'B', 'C', 'D', 'E']);
-const SeveritySchema: z.ZodType<Severity> = z.enum(['low', 'med', 'high', 'critical']);
-
-const VisionFindingSchema = z
-  .object({
-    category: CategorySchema,
-    severity: SeveritySchema,
-    summary: z.string(),
-    element: z.string().nullable(),
-    reasoning: z.string(),
-  })
-  .strict();
-
-const VisionResponseSchema = z.object({
-  findings: z.array(VisionFindingSchema),
-});
-
-const SYSTEM_PROMPT = `You are an Android QA visual auditor.
-
-Given a screenshot of a screen from the app under test, find *concrete*
-quality issues visible in the image. Stay grounded in what the pixels show —
-do not speculate about things off-screen.
-
-Categorize each issue strictly with one of these letters:
-  A — hard failure (crash dialog, blank/white screen, error banner, "Something went wrong")
-  B — functional bug (broken layout, cut-off text, wrong content, unresponsive-looking control)
-  C — UX issue (unlabeled icon, bad contrast, hidden affordance, confusing copy)
-  D — polish (alignment, spacing, minor inconsistency)
-  E — suggestion (feature idea, low-confidence observation)
-
-Severity: "critical" (blocks use), "high" (major impact), "med" (noticeable), "low" (cosmetic).
-
-If you can identify the UI element responsible (by its visible resource id or
-a stable contentDescription), put it in "element"; otherwise use null.
-
-For each finding include a one-sentence "reasoning" explaining WHY this is an
-issue, distinct from the short "summary" of WHAT is wrong.
-
-Respond with ONLY valid JSON matching this schema:
-
-{
-  "findings": [
-    { "category": "A"|"B"|"C"|"D"|"E", "severity": "low"|"med"|"high"|"critical",
-      "summary": string, "element": string | null, "reasoning": string }
-  ]
-}
-
-No prose, no code fences, no commentary — JSON only. If nothing is visibly
-wrong, return {"findings": []}.`;
-
-/**
- * Run the three-source evaluation pass: logcat scan (always), tree text scan
- * (always), and an optional vision pass when one of the triggers fires. The
- * returned findings are de-duplicated by (screenFp, element, category) so the
- * orchestrator doesn't see obvious double-reports from the same turn.
- *
- * This is a SMALL dedup — Task 16 will add fuzzy summary-based dedup across
- * turns. Here we only collapse the cheap exact-tuple collision that happens
- * when e.g. a crash is detected both in logcat and "Something went wrong" on
- * the screen.
- */
-export async function evaluate(
-  state: SessionState,
-  ctx: EvaluateContext,
-  cfg: EvaluateConfig,
-  claude: ClaudeClient,
-): Promise<Finding[]> {
+export function evaluate(state: SessionState, ctx: EvaluateContext): Finding[] {
   const findings: Finding[] = [];
 
-  // 1) Logcat scan — always.
   for (const finding of scanLogcat(ctx.logcatDelta)) {
     findings.push({
       id: makeFindingId(
@@ -139,7 +54,6 @@ export async function evaluate(
     });
   }
 
-  // 2) Tree text scan — always (no-op if tree is null).
   if (ctx.currentTree !== null) {
     for (const finding of scanTree(ctx.currentTree)) {
       findings.push({
@@ -162,36 +76,12 @@ export async function evaluate(
     }
   }
 
-  // 3) Vision — conditional on triggers and screenshot availability.
-  if (shouldRunVision(state, ctx, cfg) && ctx.screenshotBase64 !== null) {
-    const visionFindings = await runVision(ctx, claude);
-    for (const vf of visionFindings) {
-      findings.push({
-        id: makeFindingId(
-          state.runId,
-          ctx.currentScreenFp,
-          vf.element,
-          vf.category,
-          vf.summary,
-        ),
-        runId: state.runId,
-        screenFp: ctx.currentScreenFp,
-        element: vf.element,
-        category: vf.category,
-        severity: vf.severity,
-        summary: vf.summary,
-        reasoning: vf.reasoning,
-        status: 'new',
-      });
-    }
-  }
-
   return dedupeByTuple(findings);
 }
 
 /**
- * Deterministic, content-addressed Finding id. Stable under scan-order reordering
- * so `findings-history.jsonl` (Task 19) can treat the same logical finding
+ * Deterministic, content-addressed Finding id. Stable under scan-order
+ * reordering so `findings-history.jsonl` can treat the same logical finding
  * consistently across runs. 16-char SHA-1 hex prefix is collision-resistant
  * enough for a single exploration session.
  */
@@ -209,32 +99,8 @@ function makeFindingId(
 }
 
 /**
- * Determine whether to fire the vision pass this turn. Triggers:
- *   - new screen this run,
- *   - orchestrator-flagged suspicious tree,
- *   - every Nth turn after turn 0 (so we don't also fire on the first turn
- *     when history is empty — `isNewScreen` already covers that case).
- */
-function shouldRunVision(
-  state: SessionState,
-  ctx: EvaluateContext,
-  cfg: EvaluateConfig,
-): boolean {
-  if (ctx.isNewScreen) return true;
-  if (ctx.treeSuspicious) return true;
-  if (
-    cfg.visionEveryNTurns > 0 &&
-    state.history.length > 0 &&
-    state.history.length % cfg.visionEveryNTurns === 0
-  ) {
-    return true;
-  }
-  return false;
-}
-
-/**
- * Interim shape for a deterministic (logcat / tree) finding before we attach
- * the orchestrator-owned fields (id, runId, screenFp, status).
+ * Interim shape for a deterministic finding before the orchestrator-owned
+ * fields (id, runId, screenFp, status) are attached.
  */
 interface RawFinding {
   element: string | null;
@@ -247,10 +113,9 @@ interface RawFinding {
 /**
  * Scan raw logcat lines for the two fatal markers we care about. One match
  * per line wins — if a line contains FATAL EXCEPTION we don't also report it
- * as an ANR. Multiple distinct crash lines each produce their own finding so
- * the operator sees all of them, but the usual case is one per turn.
+ * as an ANR. Multiple distinct crash lines each produce their own finding.
  */
-function scanLogcat(lines: string[]): RawFinding[] {
+export function scanLogcat(lines: string[]): RawFinding[] {
   const out: RawFinding[] = [];
   for (const line of lines) {
     if (line.includes('FATAL EXCEPTION')) {
@@ -276,36 +141,28 @@ function scanLogcat(lines: string[]): RawFinding[] {
   return out;
 }
 
-/**
- * Pull a short human-readable reason from the tail of a logcat crash line.
- * For `... FATAL EXCEPTION: main` we keep "FATAL EXCEPTION: main"; for `... ANR in com.pkg`
- * we keep "ANR in com.pkg". Trims trailing punctuation / whitespace.
- */
 function extractCrashSummary(line: string, marker: string): string {
   const idx = line.indexOf(marker);
   if (idx < 0) return marker.trim();
   const tail = line.slice(idx).trim();
-  // Cap length so summaries stay one-liner friendly in reports.
   return tail.length > 120 ? `${tail.slice(0, 117)}...` : tail;
 }
 
-/** Error-banner text patterns we treat as an A (hard failure). */
 const HARD_FAILURE_PATTERNS: RegExp[] = [
   /something went wrong/i,
   /unable to connect/i,
   /no internet/i,
 ];
 
-/** Generic "error" mentions get B (functional bug) unless a hard-failure pattern also matched. */
 const SOFT_ERROR_PATTERN = /error/i;
 
 /**
  * Walk `tree` recursively and emit a finding per visible node whose text or
- * contentDescription matches an error banner / generic-error pattern. We dedupe
+ * contentDescription matches an error banner / generic-error pattern. Dedupes
  * by node resourceId within this scan to avoid reporting the same banner twice
- * when both its text and contentDescription match.
+ * when both text and contentDescription match.
  */
-function scanTree(tree: ViewNode): RawFinding[] {
+export function scanTree(tree: ViewNode): RawFinding[] {
   const out: RawFinding[] = [];
   const seen = new Set<string>();
 
@@ -334,10 +191,6 @@ function scanTree(tree: ViewNode): RawFinding[] {
   return out;
 }
 
-/**
- * Map a visible text blob to a (category, summary) pair, or null if nothing
- * matches. Hard-failure banners win over generic "error" mentions.
- */
 function classifyTreeText(
   text: string,
 ): { category: Category; summary: string } | null {
@@ -366,60 +219,9 @@ function trimSnippet(text: string): string {
 }
 
 /**
- * Fire the vision pass. On any failure — schema mismatch, malformed JSON,
- * or transport error — return [] so the caller still gets the deterministic
- * findings. We never throw out of here.
- */
-async function runVision(
-  ctx: EvaluateContext,
-  claude: ClaudeClient,
-): Promise<
-  Array<{
-    category: Category;
-    severity: Severity;
-    summary: string;
-    element: string | null;
-    reasoning: string;
-  }>
-> {
-  if (ctx.screenshotBase64 === null) return [];
-
-  let raw: unknown;
-  try {
-    raw = await claude.callJsonWithImage<unknown>({
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content:
-            'Review this Android screenshot for quality issues and respond with the JSON schema described in the system prompt.',
-        },
-      ],
-      cacheControl: true,
-      imageBase64: ctx.screenshotBase64,
-      imageMediaType: ctx.imageMediaType,
-    });
-  } catch (e) {
-    if (e instanceof MalformedJsonError) {
-      console.warn('[evaluate] vision malformed JSON after reprompt — skipping');
-    } else {
-      console.warn('[evaluate] vision call failed — skipping:', (e as Error).message);
-    }
-    return [];
-  }
-
-  const parsed = VisionResponseSchema.safeParse(raw);
-  if (!parsed.success) {
-    console.warn('[evaluate] vision response failed schema validation — skipping');
-    return [];
-  }
-  return parsed.data.findings;
-}
-
-/**
  * In-run dedup by the tuple (screenFp, element, category). First occurrence
- * wins so deterministic scans (which run first) take precedence over vision
- * when they report the same issue.
+ * wins so logcat scan (which runs first) takes precedence over tree scan when
+ * they report the same issue.
  */
 function dedupeByTuple(findings: Finding[]): Finding[] {
   const seen = new Set<string>();
