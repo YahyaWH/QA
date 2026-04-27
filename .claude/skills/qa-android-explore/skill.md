@@ -73,7 +73,19 @@ The response shape:
 - Spot visual issues the deterministic scans miss: bad layout, cut-off text, unlabeled icons, weird color contrast, broken images, error banners that aren't in the tree as text.
 - Catch hard-failure UI states (white screens, infinite spinners, crash dialogs) that didn't surface in logcat.
 
-If you spot a visual issue worth filing, **note it in your turn message** and include the category/severity. (Filing it as a real Finding is a future addition — for now, surface it in conversation so the user can decide.)
+If you spot a visual issue worth filing, **POST it to `/finding`** so it lands in `session.json`, gets dedup'd against deterministic findings, and shows up in `report.md` at finalize. Body shape:
+
+```json
+{
+  "category": "C",
+  "severity": "low",
+  "summary": "Privacy policy renders blank for 5+ seconds with no loading indicator",
+  "reasoning": "navigated from settings → legal section; screenshot at turn 7 shows only a header with empty body; second perceive 5s later shows full content",
+  "element": null
+}
+```
+
+Optional `screenFp` lets you attribute the finding to a different screen than the most recent one. Without it, the server uses the last observed fingerprint. The category/severity vocabulary matches the deterministic scans (A=hard failure, B=functional, C=UX, D=polish, E=suggestion; severity = critical|high|med|low).
 
 ### 3. Decide
 
@@ -163,7 +175,29 @@ When you spot a problem visually or in the perception, use this taxonomy (matche
 
 Severity: `critical` (blocks use), `high` (major impact), `med` (noticeable), `low` (cosmetic).
 
-Surface findings inline in the conversation — the deterministic scans (logcat + tree text) auto-file the obvious ones into `triagedFindings` and you'll see them in `/perceive` responses. Vision-only findings need a future tool to file them; for now mention them clearly so the user can act.
+Surface findings inline in the conversation **and** `POST /finding` (see step 2 above) so they land in the report. Both auto-filed and skill-filed findings flow through the same dedup-by-tuple `(screenFp, element, category)` so duplicates collapse cleanly.
+
+### What the deterministic evaluator auto-files (no `/finding` needed)
+
+Each `/perceive` runs these scans and any matches go straight into `state.findings`:
+
+| Source | Pattern | Category / Severity |
+|---|---|---|
+| logcat | `FATAL EXCEPTION` | A / critical |
+| logcat | `ANR in <pkg>` | A / high |
+| logcat | `OutOfMemoryError`, `low memory` | A / critical |
+| logcat | `Skipped N frames` (N≥30) | D / low–med |
+| logcat | `StrictMode policy violation` | D / low |
+| logcat | HTTP `5\d\d` on a URL | B / med |
+| tree text | `something went wrong`, `unable to connect`, `no internet` | A / med |
+| tree text | generic `error` mention | B / med |
+| tree bounds | element extends past device window | B / med |
+| tree a11y | clickable+visible+enabled with no text/contentDesc | C / low |
+| outcomes | element tapped ≥5× across runs, all outcomes self-loop | B / med (dead button) |
+| history | last 5 turns same fp, no fp change | B / high (frozen UI) |
+| screenshot | same fp within 3 turns, pixels differ | C / low (UI flux / loading state without indicator) |
+
+So you only need `/finding` for things the deterministic scans miss — primarily visual issues, copy bugs, and design inconsistencies you spot from the screenshot.
 
 ## Termination
 

@@ -10,6 +10,10 @@
  *                                       + path to a freshly-saved screenshot
  *   POST /act       { action: ... }  → dispatch action, observe outcome,
  *                                       record turn, return outcome JSON
+ *   POST /finding   { category,      → file a finding from the skill (visual
+ *                     severity,        review / ad-hoc) using the same id +
+ *                     summary, ... }   dedup pipeline as the deterministic
+ *                                       evaluator
  *   POST /finalize  { status?: ... } → render report + merge into canonical
  *                                       app-map, tear down, exit(0)
  *
@@ -24,6 +28,7 @@
  */
 
 import 'dotenv/config';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync } from 'node:fs';
 import { copyFile, writeFile } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
@@ -60,7 +65,7 @@ import {
 } from '../src/state/findings-history';
 import { mergeRunIntoMap } from '../src/state/map-merge';
 import { dedupInRun } from '../src/agent/dedup';
-import { evaluate } from '../src/agent/evaluate';
+import { evaluate, makeFindingId } from '../src/agent/evaluate';
 import { buildFrontier } from '../src/agent/frontier';
 import {
   buildScreen,
@@ -79,10 +84,12 @@ import { login, LoginFailedError } from '../src/agent/login';
 import type {
   Action,
   AppMap,
+  Category,
   Fingerprint,
   Finding,
   RunStatus,
   Screen,
+  Severity,
   SessionState,
 } from '../src/types/index';
 
@@ -236,6 +243,12 @@ interface ServerState {
   finalized: boolean;
   /** Device pixel dimensions — same coordinate space as screenshots + tapAt. */
   windowSize: { width: number; height: number };
+  /** Last screenshot SHA-256 per fingerprint, plus the turn it was taken on.
+   *  Used by the UI-flux check: if we re-perceive the same fingerprint
+   *  shortly after and the bytes have shifted, the screen visually changed
+   *  while the Android tree did not — likely a webview/RN content load with
+   *  no loading indicator. */
+  lastShotByFp: Map<Fingerprint, { hash: string; turn: number }>;
 }
 
 // --------------------------------------------------------------------------
@@ -371,6 +384,7 @@ async function bootstrap(args: Args): Promise<ServerState> {
     prevLogcatTs: Date.now(),
     finalized: false,
     windowSize,
+    lastShotByFp: new Map(),
   };
 }
 
@@ -481,18 +495,56 @@ async function handlePerceive(s: ServerState, res: ServerResponse): Promise<void
     s.state.frontier = mergeFrontier(s.state.frontier, newFront, perceived.fp);
   }
 
-  // Deterministic findings (logcat + tree text scans).
+  // Deterministic findings (logcat + tree text + bounds + a11y + dead-button + frozen-UI).
   const evalFindings = evaluate(s.state, {
     currentScreenFp: perceived.fp,
     currentTree: perceived.tree,
     logcatDelta: perceived.logcatDelta,
+    windowSize: s.windowSize,
   });
   if (evalFindings.length > 0) {
     s.state.findings = dedupInRun([...s.state.findings, ...evalFindings]);
   }
 
-  // Save the pre-action screenshot so the skill can Read() it.
+  // UI-flux check: same fingerprint within recent turns but pixels differ →
+  // visual change without a tree change → likely loading-state / webview load
+  // with no indicator. Only fires within FLUX_WINDOW turns to avoid flagging
+  // benign re-visits to a screen that legitimately re-rendered (different
+  // data on a list, etc.).
+  const FLUX_WINDOW = 3;
+  const shotHash = createHash('sha256').update(perceived.shot).digest('hex');
   const turnIdx = s.state.history.length + 1;
+  const prior = s.lastShotByFp.get(perceived.fp);
+  if (
+    prior !== undefined &&
+    prior.hash !== shotHash &&
+    turnIdx - prior.turn <= FLUX_WINDOW
+  ) {
+    const fluxId = makeFindingId(
+      s.state.runId,
+      perceived.fp,
+      null,
+      'C',
+      'UI changed without fingerprint change',
+    );
+    s.state.findings = dedupInRun([
+      ...s.state.findings,
+      {
+        id: fluxId,
+        runId: s.state.runId,
+        screenFp: perceived.fp,
+        element: null,
+        category: 'C',
+        severity: 'low',
+        summary: 'UI changed without fingerprint change',
+        reasoning: `screenshot hash differed (${prior.hash.slice(0, 8)}… → ${shotHash.slice(0, 8)}…) on the same fp within ${FLUX_WINDOW} turns; possible loading-state / webview content render with no visible indicator`,
+        status: 'new',
+      },
+    ]);
+  }
+  s.lastShotByFp.set(perceived.fp, { hash: shotHash, turn: turnIdx });
+
+  // Save the pre-action screenshot so the skill can Read() it.
   const screenshotPath = await s.recorder.saveScreenshot(
     turnIdx,
     'pre',
@@ -664,6 +716,93 @@ async function handleAct(
     elapsedMs: elapsed,
     budgetRemaining: budgetRemaining(s),
     budgetExpired,
+  });
+}
+
+/** Schema for skill-filed findings. The category/severity taxonomy matches
+ *  the deterministic evaluator's, so manual and auto findings flow through
+ *  the same dedup + classification + report pipeline. */
+const FindingFilingSchema = z.object({
+  category: z.enum(['A', 'B', 'C', 'D', 'E']),
+  severity: z.enum(['low', 'med', 'high', 'critical']),
+  summary: z.string().min(1).max(200),
+  reasoning: z.string().min(1).max(2000),
+  element: z.string().nullable().optional(),
+  /** Defaults to the most recently perceived screen. Pass explicitly when
+   *  filing a finding about a different screen (rarely needed). */
+  screenFp: z.string().optional(),
+});
+
+async function handleFinding(
+  s: ServerState,
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> {
+  if (s.finalized) {
+    sendJson(res, 409, { error: 'session already finalized' });
+    return;
+  }
+
+  const body = await readBody(req);
+  let parsedBody: unknown;
+  try {
+    parsedBody = JSON.parse(body);
+  } catch (err) {
+    sendJson(res, 400, { error: 'invalid JSON body', detail: errorMessage(err) });
+    return;
+  }
+  const result = FindingFilingSchema.safeParse(parsedBody);
+  if (!result.success) {
+    sendJson(res, 400, {
+      error: 'finding failed schema validation',
+      issues: result.error.issues,
+    });
+    return;
+  }
+
+  // Default screenFp to the last fingerprint we observed. If the skill never
+  // /perceive'd before filing, fall back to whatever's in screens. Worst case
+  // we get a finding with no resolvable screen — still useful in the report.
+  let screenFp = result.data.screenFp;
+  if (!screenFp) {
+    const recent = s.state.history[s.state.history.length - 1];
+    screenFp =
+      recent?.outcomeFp ?? recent?.screenFp ?? Object.keys(s.state.screens)[0] ?? 'unknown';
+  }
+
+  const element = result.data.element ?? null;
+  const finding: Finding = {
+    id: makeFindingId(
+      s.state.runId,
+      screenFp,
+      element,
+      result.data.category as Category,
+      result.data.summary,
+    ),
+    runId: s.state.runId,
+    screenFp,
+    element,
+    category: result.data.category as Category,
+    severity: result.data.severity as Severity,
+    summary: result.data.summary,
+    reasoning: `(filed by skill) ${result.data.reasoning}`,
+    status: 'new',
+  };
+
+  s.state.findings = dedupInRun([...s.state.findings, finding]);
+  await s.recorder.updateState({ findings: s.state.findings });
+
+  sendJson(res, 200, {
+    filed: true,
+    finding: {
+      id: finding.id,
+      screenFp: finding.screenFp,
+      category: finding.category,
+      severity: finding.severity,
+      summary: finding.summary,
+      element: finding.element,
+    },
+    totalFindingsThisRun: s.state.findings.length,
   });
 }
 
@@ -895,6 +1034,8 @@ async function main(): Promise<void> {
           await handlePerceive(s, res);
         } else if (method === 'POST' && url === '/act') {
           await handleAct(s, req, res);
+        } else if (method === 'POST' && url === '/finding') {
+          await handleFinding(s, req, res);
         } else if (method === 'POST' && url === '/finalize') {
           await handleFinalize(s, req, res);
         } else {
@@ -910,7 +1051,7 @@ async function main(): Promise<void> {
 
   server.listen(args.port, '127.0.0.1', () => {
     log(`READY runId=${s.runId} port=${args.port} role=${s.role}`);
-    log(`endpoints: GET /status, POST /perceive, POST /act, POST /finalize`);
+    log(`endpoints: GET /status, POST /perceive, POST /act, POST /finding, POST /finalize`);
   });
 }
 
