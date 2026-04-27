@@ -97,24 +97,59 @@ const log = (msg: string): void => console.log(`[qa-server] ${msg}`);
 interface Args {
   role: string | undefined;
   port: number;
+  instanceIndex: number;
 }
 
+/**
+ * Parse CLI args. The HTTP `--port` is whatever the caller passes (defaults to
+ * 7099 + instanceIndex). Emulator console port, adb serial, Appium port, and
+ * the readOnly emulator flag are derived from `--instance` (or the
+ * `ANDROID_QA_INSTANCE_INDEX` env var) so two qa-servers can run side by side
+ * without collision: instance 0 → console 5554 / Appium 4723, instance 1 →
+ * console 5556 / Appium 4724, etc.
+ *
+ * `readOnly` defaults to `true` whenever `instance > 0` so each parallel
+ * instance gets its own ephemeral AVD overlay. Without it, two emulators
+ * sharing one AVD's userdata image corrupt each other.
+ */
 function parseArgs(argv: string[]): Args {
   let role: string | undefined;
-  let port = 7099;
+  let portOverride: number | undefined;
+  let instanceFromCli: number | undefined;
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--role' && i + 1 < argv.length) {
       role = argv[i + 1];
       i += 1;
     } else if (argv[i] === '--port' && i + 1 < argv.length) {
-      port = Number(argv[i + 1]);
-      if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      portOverride = Number(argv[i + 1]);
+      if (!Number.isInteger(portOverride) || portOverride < 1 || portOverride > 65535) {
         throw new Error(`--port must be a valid TCP port, got ${argv[i + 1]}`);
+      }
+      i += 1;
+    } else if (argv[i] === '--instance' && i + 1 < argv.length) {
+      instanceFromCli = Number(argv[i + 1]);
+      if (!Number.isInteger(instanceFromCli) || instanceFromCli < 0) {
+        throw new Error(`--instance must be a non-negative integer, got ${argv[i + 1]}`);
       }
       i += 1;
     }
   }
-  return { role, port };
+
+  let instanceIndex = instanceFromCli;
+  if (instanceIndex === undefined) {
+    const envIdx = process.env.ANDROID_QA_INSTANCE_INDEX;
+    if (envIdx !== undefined && envIdx !== '') {
+      instanceIndex = Number(envIdx);
+      if (!Number.isInteger(instanceIndex) || instanceIndex < 0) {
+        throw new Error(`ANDROID_QA_INSTANCE_INDEX must be a non-negative integer, got ${envIdx}`);
+      }
+    } else {
+      instanceIndex = 0;
+    }
+  }
+
+  const port = portOverride ?? 7099 + instanceIndex;
+  return { role, port, instanceIndex };
 }
 
 function pickRole(
@@ -139,11 +174,12 @@ function pickRole(
   return keys[0];
 }
 
-function newRunId(): string {
+function newRunId(instanceIndex: number): string {
   const suffix = customAlphabet('0123456789abcdef', 4);
   const now = new Date();
   const pad = (n: number): string => n.toString().padStart(2, '0');
-  return `run-${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}-${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}-${suffix()}`;
+  const instSuffix = instanceIndex === 0 ? '' : `-i${instanceIndex}`;
+  return `run-${now.getUTCFullYear()}${pad(now.getUTCMonth() + 1)}${pad(now.getUTCDate())}-${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${instSuffix}-${suffix()}`;
 }
 
 // --------------------------------------------------------------------------
@@ -209,16 +245,29 @@ interface ServerState {
 async function bootstrap(args: Args): Promise<ServerState> {
   const config = loadConfig();
   const role = pickRole(args.role, config.auth.roles);
-  const runId = newRunId();
+  const runId = newRunId(args.instanceIndex);
   const runDir = join(
     fileURLToPath(new URL('../../../output/android-qa', import.meta.url)),
     runId,
   );
   mkdirSync(runDir, { recursive: true });
 
+  // Per-instance resource offsets. instance=0 keeps legacy single-instance
+  // defaults; instance=N adds (2N) to the emulator console port and N to the
+  // Appium port. readOnly is forced on for any non-zero instance so the
+  // ephemeral AVD overlays don't corrupt each other.
+  const consolePort = DEFAULT_EMULATOR_CONSOLE_PORT + args.instanceIndex * 2;
+  const appiumPort = config.device.appiumPort + args.instanceIndex;
+  const serial = `emulator-${consolePort}`;
+  const readOnly =
+    args.instanceIndex > 0 || process.env.ANDROID_EMULATOR_READ_ONLY === '1';
+
   log(`runId=${runId}`);
   log(`runDir=${runDir}`);
   log(`role=${role}`);
+  log(
+    `instance=${args.instanceIndex} serial=${serial} appiumPort=${appiumPort} readOnly=${readOnly}`,
+  );
 
   const appMap = await loadAppMap(defaultAppMapPath());
   const history = await readHistory(defaultFindingsHistoryPath());
@@ -230,8 +279,8 @@ async function bootstrap(args: Args): Promise<ServerState> {
   const emulator = await startEmulator({
     avdName: config.device.avdName,
     sdkRoot: config.device.sdkRoot,
-    consolePort: DEFAULT_EMULATOR_CONSOLE_PORT,
-    readOnly: process.env.ANDROID_EMULATOR_READ_ONLY === '1',
+    consolePort,
+    readOnly,
   });
 
   const logcatTail = new LogcatTail({ serial: emulator.serial });
@@ -247,11 +296,11 @@ async function bootstrap(args: Args): Promise<ServerState> {
   log(`appVersion=${appVersion}`);
 
   log('starting Appium...');
-  const appiumServer = await startAppium(config.device.appiumHost, config.device.appiumPort);
+  const appiumServer = await startAppium(config.device.appiumHost, appiumPort);
 
   log('creating driver session...');
   const driver = new AppiumDriver({
-    appiumUrl: `http://${config.device.appiumHost}:${config.device.appiumPort}`,
+    appiumUrl: `http://${config.device.appiumHost}:${appiumPort}`,
     avdName: config.device.avdName,
     apkPath: config.device.apkPath,
     appPackage: APP_PACKAGE,
