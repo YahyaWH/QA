@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<hierarchy rotation="0">
+  <node index="0" class="android.widget.FrameLayout" package="com.wastehero" bounds="[0,0][1440,3200]">
+    <node index="0" class="android.widget.LinearLayout" package="com.wastehero" bounds="[0,0][1440,3200]">
+      <node index="0" resource-id="com.wastehero:id/submit-btn" class="android.widget.Button" package="com.wastehero" text="Sign in" content-desc="Sign in now" clickable="true" bounds="[60,1400][1380,1580]"/>
+      <node index="1" resource-id="com.wastehero:id/password-input" class="android.widget.EditText" package="com.wastehero" text="secret" content-desc="Enter password" clickable="true" bounds="[60,1100][1380,1320]"/>
+      <node index="2" resource-id="com.wastehero:id/email-input" class="android.widget.EditText" package="com.wastehero" text="a@b.com" content-desc="Email address" clickable="true" bounds="[60,800][1380,1020]"/>
+    </node>
+  </node>
+</hierarchy>

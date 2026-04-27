@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<hierarchy rotation="0">
+  <node index="0" class="android.widget.FrameLayout" package="com.wastehero" bounds="[0,0][1080,2400]">
+    <node index="0" class="android.widget.LinearLayout" package="com.wastehero" bounds="[0,0][1080,2400]">
+      <node index="0" resource-id="com.wastehero:id/home-title" class="android.widget.TextView" package="com.wastehero" text="Welcome" content-desc="Welcome" clickable="false" bounds="[40,100][1040,240]"/>
+      <node index="1" resource-id="com.wastehero:id/dashboard-list" class="androidx.recyclerview.widget.RecyclerView" package="com.wastehero" text="" content-desc="Dashboard" clickable="false" bounds="[0,260][1080,2400]"/>
+    </node>
+  </node>
+</hierarchy>

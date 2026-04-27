@@ -1,0 +1,52 @@
+name: android-qa
+
+on:
+  pull_request:
+    paths:
+      - 'packages/android-qa/**'
+  schedule:
+    # Nightly smoke at 02:00 UTC — after any US-hours checkins settle and
+    # before the European workday, so a failure lands in someone's morning.
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test -w @wastehero-qa/android-qa
+      - run: npm run typecheck -w @wastehero-qa/android-qa
+
+  smoke:
+    # Gate the smoke job off PRs — it needs device/Appium + Anthropic
+    # credentials, which shouldn't fire on every feature branch.
+    if: github.event_name != 'pull_request'
+    runs-on: [self-hosted, android-sdk]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run smoke -w @wastehero-qa/android-qa
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANDROID_SDK_ROOT: ${{ runner.tool_cache }}/android-sdk
+          WASTEHERO_APK_PATH: ${{ github.workspace }}/canary.apk
+          WH_CREDS_ADMIN_EMAIL: ${{ secrets.WH_ADMIN_EMAIL }}
+          WH_CREDS_ADMIN_PASSWORD: ${{ secrets.WH_ADMIN_PASSWORD }}
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-qa-smoke-${{ github.run_id }}
+          path: output/android-qa/
+          if-no-files-found: ignore
+          retention-days: 14

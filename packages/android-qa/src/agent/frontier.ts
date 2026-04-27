@@ -1,0 +1,142 @@
+import type { AppMap, Fingerprint, Screen, ViewElement } from '../types/index';
+
+/**
+ * One entry in the exploration frontier: a candidate (screen, element) pair the agent may act on
+ * next, tagged with a priority score. Higher priority = more interesting to probe.
+ */
+export interface FrontierEntry {
+  screenFp: string;
+  elementId: string;
+  priority: number;
+}
+
+export interface FrontierOptions {
+  /** Identifier of the run currently executing; used to decide whether a screen was "seen" this run. */
+  currentRunId: string;
+  /**
+   * How many runs may pass before a previously-tapped element becomes a re-validation candidate.
+   * Default 5. Kept for future use; the current heuristic only checks `lastSeenRun !== currentRunId`,
+   * treating any screen not seen this run as stale (see band-3 note below).
+   */
+  reValidateEveryNRuns?: number;
+  /**
+   * Screens the agent has observed THIS run (keyed by fingerprint). Optional because tests may omit
+   * it, but the orchestrator always passes `state.screens` so band-2 / band-3 reflect fresh taps.
+   * Without this, `leadsToUnexploredScreen` reads only the `appMap` (the end-of-prior-run snapshot),
+   * so a tapped element whose outcome self-loops keeps reporting its target as "has untapped
+   * elements" forever — that's how run 3 spent 449 turns on `android:id/content`.
+   */
+  sessionScreens?: Record<Fingerprint, Screen>;
+}
+
+/**
+ * Build a prioritized exploration frontier from the current screen and the persisted app map.
+ *
+ * Priority bands (from design spec §5.2.2, highest wins):
+ *   100 — Never tapped (no `marked`).
+ *    80 — Tapped but leads to a screen with at least one never-tapped element.
+ *    60 — Screen not seen in the current run (stale; re-probe tapped elements).
+ *    40 — Marked `broken`, screen not seen this run.
+ *    -- — Marked `deny-listed`: always excluded.
+ *    -- — Tapped, no qualifier: excluded (keeps the frontier small; matches the "5 new + 3 tapped-exclude" spec case).
+ *
+ * Band-3 simplification: the spec wants "not seen in last M runs" but we lack a run-number ordering
+ * in memory, so we use the cheap proxy "the screen's lastSeenRun !== currentRunId" — i.e. any screen
+ * not observed THIS run is treated as potentially stale. This over-includes on the first few runs
+ * of a cold cache but never under-includes, and is easily refined later once run history is indexed.
+ *
+ * Sort is descending by priority; stable ties broken by `elementId` ascending.
+ */
+export function buildFrontier(
+  screen: Screen,
+  appMap: AppMap,
+  opts: FrontierOptions,
+): FrontierEntry[] {
+  const { currentRunId, sessionScreens } = opts;
+  const persisted = appMap.screens[screen.fingerprint];
+  const session = sessionScreens ?? {};
+  // A screen counts as "seen this run" if either:
+  //   (a) it's already in session state (the orchestrator always inserts into state.screens
+  //       before calling buildFrontier for the current screen), or
+  //   (b) it's absent from the persisted appMap entirely (freshly discovered this run), or
+  //   (c) the persisted record's `lastSeenRun` happens to match (kept for tests / completeness;
+  //       rarely triggers in practice because the appMap only merges at end-of-run).
+  // Without (a), re-visiting a persisted screen mid-run re-promotes every tapped element at
+  // priority 60 via band-3 even though we're ACTIVELY on it.
+  const screenSeenThisRun =
+    session[screen.fingerprint] !== undefined ||
+    persisted === undefined ||
+    persisted.lastSeenRun === currentRunId;
+
+  const entries: FrontierEntry[] = [];
+
+  for (const [elementId, element] of Object.entries(screen.elements)) {
+    const priority = classify(element, appMap, session, screenSeenThisRun);
+    if (priority === null) continue;
+    entries.push({ screenFp: screen.fingerprint, elementId, priority });
+  }
+
+  entries.sort((a, b) => {
+    if (a.priority !== b.priority) return b.priority - a.priority;
+    return a.elementId < b.elementId ? -1 : a.elementId > b.elementId ? 1 : 0;
+  });
+
+  return entries;
+}
+
+/**
+ * Assign a priority band to a single element, or `null` to exclude it from the frontier.
+ * See the band order documented on `buildFrontier`.
+ */
+function classify(
+  element: ViewElement,
+  appMap: AppMap,
+  sessionScreens: Record<Fingerprint, Screen>,
+  screenSeenThisRun: boolean,
+): number | null {
+  if (element.marked === 'deny-listed') return null;
+
+  if (element.marked === 'broken') {
+    // Re-test broken elements only when the screen wasn't already seen this run.
+    return screenSeenThisRun ? null : 40;
+  }
+
+  // Band 1: never tapped.
+  if (!element.tapped) return 100;
+
+  // Band 2: tapped, but at least one recorded outcome points to a screen that still
+  // has an untapped element.
+  if (leadsToUnexploredScreen(element, appMap, sessionScreens)) return 80;
+
+  // Band 3: screen is stale (not seen this run) — tapped elements on stale screens are re-probe
+  // candidates at priority 60.
+  if (!screenSeenThisRun) return 60;
+
+  // Fallback: tapped, no qualifier. Exclude to keep the frontier small.
+  return null;
+}
+
+/**
+ * True when any recorded outcome of `element` points to a screen that still contains at
+ * least one untapped element. Prefers the live `sessionScreens` view because the session is
+ * fresher than the `appMap` (which only merges at end-of-run), which matters for self-looping
+ * taps: once the session has tapped every element on the target screen, the self-loop correctly
+ * reports "nothing more to find here" instead of re-inflating its source element to priority 80.
+ */
+function leadsToUnexploredScreen(
+  element: ViewElement,
+  appMap: AppMap,
+  sessionScreens: Record<Fingerprint, Screen>,
+): boolean {
+  for (const outcome of element.outcomes) {
+    const target = outcome.ledToScreen;
+    if (target === null) continue;
+    const targetScreen =
+      sessionScreens[target as Fingerprint] ?? appMap.screens[target as Fingerprint];
+    if (targetScreen === undefined) continue;
+    for (const child of Object.values(targetScreen.elements)) {
+      if (!child.tapped) return true;
+    }
+  }
+  return false;
+}

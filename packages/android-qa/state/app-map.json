@@ -1,0 +1,3158 @@
+{
+  "appVersion": "v2.4.0-rc.7",
+  "generatedAt": "2026-04-27T12:00:42.470Z",
+  "schemaVersion": 1,
+  "screens": {
+    "1bdc44511752d352": {
+      "fingerprint": "1bdc44511752d352",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:32.578Z",
+          "lastSeen": "2026-04-27T08:16:33.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 8
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:32.578Z",
+          "lastSeen": "2026-04-27T08:16:33.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 3992
+            }
+          ]
+        },
+        "project-screen": {
+          "resourceId": "project-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:32.578Z",
+          "lastSeen": "2026-04-27T08:16:33.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 8
+            }
+          ]
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:32.578Z",
+          "lastSeen": "2026-04-27T08:16:33.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 48
+            }
+          ]
+        },
+        "project-list": {
+          "resourceId": "project-list",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:32.578Z",
+          "lastSeen": "2026-04-27T08:16:33.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 8
+            }
+          ]
+        },
+        "project-item": {
+          "resourceId": "project-item",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:32.578Z",
+          "lastSeen": "2026-04-27T08:16:33.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 8
+            }
+          ]
+        },
+        "project-next-button": {
+          "resourceId": "project-next-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:32.578Z",
+          "lastSeen": "2026-04-27T08:16:33.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 2008
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260421-0921-1beb",
+      "lastSeenRun": "run-20260427-0810-ab24",
+      "seenCount": 7
+    },
+    "da8ba9868736dd7d": {
+      "fingerprint": "da8ba9868736dd7d",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:37.783Z",
+          "lastSeen": "2026-04-27T06:26:24.545Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 864
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:37.783Z",
+          "lastSeen": "2026-04-27T06:26:24.545Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 282816
+            }
+          ]
+        },
+        "login-screen": {
+          "resourceId": "login-screen",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:37.783Z",
+          "lastSeen": "2026-04-27T06:26:24.545Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 864
+            }
+          ]
+        },
+        "email": {
+          "resourceId": "email",
+          "role": "android.widget.EditText",
+          "text": "@email.com",
+          "firstSeen": "2026-04-21T09:22:37.783Z",
+          "lastSeen": "2026-04-27T06:26:24.545Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 864
+            }
+          ]
+        },
+        "password": {
+          "resourceId": "password",
+          "role": "android.widget.EditText",
+          "text": "Password",
+          "firstSeen": "2026-04-21T09:22:37.783Z",
+          "lastSeen": "2026-04-27T06:26:24.545Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "e3deceb8dd3f9971",
+              "count": 1728
+            }
+          ]
+        },
+        "login-button": {
+          "resourceId": "login-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:37.783Z",
+          "lastSeen": "2026-04-27T06:26:24.545Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 864
+            }
+          ]
+        },
+        "login-version-label": {
+          "resourceId": "login-version-label",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:37.783Z",
+          "lastSeen": "2026-04-27T06:26:24.545Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 864
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260421-0921-1beb",
+      "lastSeenRun": "run-20260427-0624-i1-c783",
+      "seenCount": 13
+    },
+    "e3deceb8dd3f9971": {
+      "fingerprint": "e3deceb8dd3f9971",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:54.252Z",
+          "lastSeen": "2026-04-21T11:26:34.897Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 2
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:54.252Z",
+          "lastSeen": "2026-04-21T11:26:24.974Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 3
+            }
+          ]
+        },
+        "login-screen": {
+          "resourceId": "login-screen",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:54.252Z",
+          "lastSeen": "2026-04-21T11:26:22.991Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 1
+            }
+          ]
+        },
+        "email": {
+          "resourceId": "email",
+          "role": "android.widget.EditText",
+          "text": "@email.com",
+          "firstSeen": "2026-04-21T09:22:54.252Z",
+          "lastSeen": "2026-04-21T11:26:22.991Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "e3deceb8dd3f9971",
+              "count": 482
+            }
+          ]
+        },
+        "password": {
+          "resourceId": "password",
+          "role": "android.widget.EditText",
+          "text": "Password",
+          "firstSeen": "2026-04-21T09:22:54.252Z",
+          "lastSeen": "2026-04-21T11:26:22.991Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "e3deceb8dd3f9971",
+              "count": 1
+            }
+          ]
+        },
+        "login-button": {
+          "resourceId": "login-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-21T09:22:54.252Z",
+          "lastSeen": "2026-04-21T11:26:22.991Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "da8ba9868736dd7d",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260421-0921-1beb",
+      "lastSeenRun": "run-20260421-1124-cb5e",
+      "seenCount": 3
+    },
+    "64a9d0387a2dfb48": {
+      "fingerprint": "64a9d0387a2dfb48",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T10:09:48.652Z",
+          "lastSeen": "2026-04-27T06:29:05.146Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 54
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T10:09:48.652Z",
+          "lastSeen": "2026-04-27T06:29:05.146Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 108
+            }
+          ]
+        },
+        "project-screen": {
+          "resourceId": "project-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T10:09:48.652Z",
+          "lastSeen": "2026-04-27T06:29:05.146Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 54
+            }
+          ]
+        },
+        "project-list": {
+          "resourceId": "project-list",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-21T10:09:48.652Z",
+          "lastSeen": "2026-04-27T06:29:05.146Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 54
+            }
+          ]
+        },
+        "project-next-button": {
+          "resourceId": "project-next-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-21T10:09:48.652Z",
+          "lastSeen": "2026-04-27T06:29:05.146Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 54
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260421-1008-132d",
+      "lastSeenRun": "run-20260427-0624-i1-c783",
+      "seenCount": 9
+    },
+    "ed7f3fec825f2707": {
+      "fingerprint": "ed7f3fec825f2707",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:47:58.863Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "ed7f3fec825f2707",
+              "count": 8
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:47:58.863Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "ed7f3fec825f2707",
+              "count": 16
+            }
+          ]
+        },
+        "vehicle-screen": {
+          "resourceId": "vehicle-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:47:58.863Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "ed7f3fec825f2707",
+              "count": 4
+            }
+          ]
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:47:58.863Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 16
+            }
+          ]
+        },
+        "vehicle-list": {
+          "resourceId": "vehicle-list",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:47:58.863Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "ed7f3fec825f2707",
+              "count": 4
+            }
+          ]
+        },
+        "vehicle-item": {
+          "resourceId": "vehicle-item",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:47:58.863Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "ed7f3fec825f2707",
+              "count": 4
+            }
+          ]
+        },
+        "vehicle-confirm-button": {
+          "resourceId": "vehicle-confirm-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:47:58.863Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "d9f6ae9967d67744",
+              "count": 8
+            }
+          ]
+        },
+        "vehicle-skip-button": {
+          "resourceId": "vehicle-skip-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-21T12:05:24.124Z",
+          "lastSeen": "2026-04-27T08:48:04.167Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 5
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260421-1204-9f08",
+      "lastSeenRun": "run-20260427-0846-1d57",
+      "seenCount": 5
+    },
+    "4498d59969487f98": {
+      "fingerprint": "4498d59969487f98",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:27.209Z",
+          "lastSeen": "2026-04-27T08:42:07.464Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 4608
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:27.209Z",
+          "lastSeen": "2026-04-27T08:42:07.464Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 4608
+            }
+          ]
+        },
+        "project-screen": {
+          "resourceId": "project-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:27.209Z",
+          "lastSeen": "2026-04-27T08:42:07.464Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 2304
+            }
+          ]
+        },
+        "project-list": {
+          "resourceId": "project-list",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:27.209Z",
+          "lastSeen": "2026-04-27T08:42:07.464Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 4608
+            }
+          ]
+        },
+        "project-item": {
+          "resourceId": "project-item",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:27.209Z",
+          "lastSeen": "2026-04-27T08:42:07.464Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 4616
+            }
+          ]
+        },
+        "project-next-button": {
+          "resourceId": "project-next-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:27.209Z",
+          "lastSeen": "2026-04-27T08:42:46.002Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4c162b050d0b5839",
+              "count": 6919
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260424-0632-de51",
+      "lastSeenRun": "run-20260427-0824-184b",
+      "seenCount": 15
+    },
+    "7aad7b2944429653": {
+      "fingerprint": "7aad7b2944429653",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:49.748Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 16
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:49.748Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 16
+            }
+          ]
+        },
+        "dashboard-screen": {
+          "resourceId": "dashboard-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:49.748Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 16
+            }
+          ]
+        },
+        "dashboard-overview-tab": {
+          "resourceId": "dashboard-overview-tab",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:49.748Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 16
+            }
+          ]
+        },
+        "dashboard-summary-tab": {
+          "resourceId": "dashboard-summary-tab",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:49.748Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "cf03ee1debf04834",
+              "count": 48
+            }
+          ]
+        },
+        "dashboard-routes-section": {
+          "resourceId": "dashboard-routes-section",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:49.748Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 16
+            }
+          ]
+        },
+        "dashboard-tickets-section": {
+          "resourceId": "dashboard-tickets-section",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:49.748Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 16
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260424-0632-de51",
+      "lastSeenRun": "run-20260427-1159-e357",
+      "seenCount": 5
+    },
+    "cf03ee1debf04834": {
+      "fingerprint": "cf03ee1debf04834",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:33:21.599Z",
+          "lastSeen": "2026-04-24T06:33:29.077Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "cf03ee1debf04834",
+              "count": 1
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:33:21.599Z",
+          "lastSeen": "2026-04-24T06:33:24.957Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "cf03ee1debf04834",
+              "count": 1
+            }
+          ]
+        },
+        "dashboard-screen": {
+          "resourceId": "dashboard-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:33:21.599Z",
+          "lastSeen": "2026-04-24T06:33:48.419Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "cf03ee1debf04834",
+              "count": 1
+            }
+          ]
+        },
+        "dashboard-overview-tab": {
+          "resourceId": "dashboard-overview-tab",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-24T06:33:21.599Z",
+          "lastSeen": "2026-04-24T06:33:33.893Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 1
+            }
+          ]
+        },
+        "dashboard-summary-tab": {
+          "resourceId": "dashboard-summary-tab",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-24T06:33:21.599Z",
+          "lastSeen": "2026-04-24T06:33:51.693Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "cf03ee1debf04834",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260424-0632-de51",
+      "lastSeenRun": "run-20260424-0632-de51",
+      "seenCount": 1
+    },
+    "1245631aa3c43b77": {
+      "fingerprint": "1245631aa3c43b77",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:34:26.205Z",
+          "lastSeen": "2026-04-27T06:26:30.935Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 288
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:34:26.205Z",
+          "lastSeen": "2026-04-27T06:26:30.935Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7aad7b2944429653",
+              "count": 288
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260424-0632-de51",
+      "lastSeenRun": "run-20260427-0624-i1-c783",
+      "seenCount": 11
+    },
+    "d26bb6e203cfc79c": {
+      "fingerprint": "d26bb6e203cfc79c",
+      "activity": ".NexusLauncherActivity",
+      "elements": {
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 12
+            }
+          ]
+        },
+        "com.google.android.apps.nexuslauncher:id/launcher": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/launcher",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/drag_layer": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/drag_layer",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:13.958Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 1
+            }
+          ]
+        },
+        "com.google.android.apps.nexuslauncher:id/scrim_view": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/scrim_view",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/page_indicator": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/page_indicator",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/workspace": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/workspace",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/search_container_workspace": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/search_container_workspace",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/bc_smartspace_view": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/bc_smartspace_view",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 6
+            }
+          ]
+        },
+        "com.google.android.apps.nexuslauncher:id/smartspace_card_pager": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/smartspace_card_pager",
+          "role": "androidx.viewpager.widget.ViewPager",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/text_group": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/text_group",
+          "role": "android.widget.RelativeLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/date": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/date",
+          "role": "android.widget.TextView",
+          "text": "Mon, Apr 27",
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "207b201881aa926b",
+              "count": 4
+            }
+          ]
+        },
+        "com.google.android.apps.nexuslauncher:id/smartspace_subtitle_group": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/smartspace_subtitle_group",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/hotseat": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/hotseat",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/search_container_hotseat": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/search_container_hotseat",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/g_icon": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/g_icon",
+          "role": "android.widget.ImageView",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/end_part": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/end_part",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/mic_icon": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/mic_icon",
+          "role": "android.widget.ImageView",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/lens_icon": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/lens_icon",
+          "role": "android.widget.ImageButton",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.apps.nexuslauncher:id/overview_actions_view": {
+          "resourceId": "com.google.android.apps.nexuslauncher:id/overview_actions_view",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T06:36:50.989Z",
+          "lastSeen": "2026-04-27T06:34:10.700Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260424-0632-de51",
+      "lastSeenRun": "run-20260427-0624-i1-c783",
+      "seenCount": 5
+    },
+    "207b201881aa926b": {
+      "fingerprint": "207b201881aa926b",
+      "activity": ".launch.oobe.WhatsNewFullScreen",
+      "elements": {
+        "com.google.android.calendar:id/action_bar_root": {
+          "resourceId": "com.google.android.calendar:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:27:30.654Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 2
+            }
+          ]
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:27:00.234Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 2
+            }
+          ]
+        },
+        "com.google.android.calendar:id/main_frame": {
+          "resourceId": "com.google.android.calendar:id/main_frame",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:26:55.798Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/pager": {
+          "resourceId": "com.google.android.calendar:id/pager",
+          "role": "androidx.viewpager.widget.ViewPager",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:26:55.798Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/image_frame": {
+          "resourceId": "com.google.android.calendar:id/image_frame",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:26:55.798Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/image": {
+          "resourceId": "com.google.android.calendar:id/image",
+          "role": "android.widget.ImageView",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:33:35.170Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 1
+            }
+          ]
+        },
+        "com.google.android.calendar:id/texts_frame": {
+          "resourceId": "com.google.android.calendar:id/texts_frame",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:26:55.798Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/header": {
+          "resourceId": "com.google.android.calendar:id/header",
+          "role": "android.widget.TextView",
+          "text": "Google Calendar",
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:31:14.904Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 1
+            }
+          ]
+        },
+        "com.google.android.calendar:id/body_text_center": {
+          "resourceId": "com.google.android.calendar:id/body_text_center",
+          "role": "android.widget.TextView",
+          "text": "Make the most of every day.",
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:30:42.769Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 2
+            }
+          ]
+        },
+        "com.google.android.calendar:id/base_page": {
+          "resourceId": "com.google.android.calendar:id/base_page",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:28:16.678Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 2
+            }
+          ]
+        },
+        "com.google.android.calendar:id/footer": {
+          "resourceId": "com.google.android.calendar:id/footer",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:27:51.743Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "b51d57ccf8cbc3b3",
+              "count": 1
+            }
+          ]
+        },
+        "com.google.android.calendar:id/next_arrow": {
+          "resourceId": "com.google.android.calendar:id/next_arrow",
+          "role": "android.widget.ImageButton",
+          "text": null,
+          "firstSeen": "2026-04-24T10:12:15.288Z",
+          "lastSeen": "2026-04-24T10:26:55.798Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260424-1005-i0-9c8c",
+      "lastSeenRun": "run-20260424-1007-i1-b860",
+      "seenCount": 2
+    },
+    "b5e1ab8f839ca1b3": {
+      "fingerprint": "b5e1ab8f839ca1b3",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.google.android.calendar:id/action_bar_root": {
+          "resourceId": "com.google.android.calendar:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:49.432Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "64a9d0387a2dfb48",
+              "count": 1
+            }
+          ]
+        },
+        "com.google.android.calendar:id/main_frame": {
+          "resourceId": "com.google.android.calendar:id/main_frame",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/pager": {
+          "resourceId": "com.google.android.calendar:id/pager",
+          "role": "androidx.viewpager.widget.ViewPager",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/image_frame": {
+          "resourceId": "com.google.android.calendar:id/image_frame",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/image": {
+          "resourceId": "com.google.android.calendar:id/image",
+          "role": "android.widget.ImageView",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/texts_frame": {
+          "resourceId": "com.google.android.calendar:id/texts_frame",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/header": {
+          "resourceId": "com.google.android.calendar:id/header",
+          "role": "android.widget.TextView",
+          "text": "Google Calendar",
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/body_text_center": {
+          "resourceId": "com.google.android.calendar:id/body_text_center",
+          "role": "android.widget.TextView",
+          "text": "Make the most of every day.",
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/base_page": {
+          "resourceId": "com.google.android.calendar:id/base_page",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/footer": {
+          "resourceId": "com.google.android.calendar:id/footer",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:32:45.891Z",
+          "lastSeen": "2026-04-24T10:32:45.891Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260424-1005-i0-9c8c",
+      "lastSeenRun": "run-20260424-1005-i0-9c8c",
+      "seenCount": 1
+    },
+    "52894e043290d91e": {
+      "fingerprint": "52894e043290d91e",
+      "activity": ".MainActivity",
+      "elements": {},
+      "firstSeenRun": "run-20260424-1007-i1-b860",
+      "lastSeenRun": "run-20260424-1007-i1-b860",
+      "seenCount": 1
+    },
+    "9b9ab5b9d8f3b7e4": {
+      "fingerprint": "9b9ab5b9d8f3b7e4",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.google.android.calendar:id/action_bar_root": {
+          "resourceId": "com.google.android.calendar:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:36:19.044Z",
+          "lastSeen": "2026-04-24T10:36:19.044Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:36:19.044Z",
+          "lastSeen": "2026-04-24T10:36:21.903Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "64a9d0387a2dfb48",
+              "count": 1
+            }
+          ]
+        },
+        "com.google.android.calendar:id/main_frame": {
+          "resourceId": "com.google.android.calendar:id/main_frame",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-24T10:36:19.044Z",
+          "lastSeen": "2026-04-24T10:36:19.044Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "com.google.android.calendar:id/pager": {
+          "resourceId": "com.google.android.calendar:id/pager",
+          "role": "androidx.viewpager.widget.ViewPager",
+          "text": null,
+          "firstSeen": "2026-04-24T10:36:19.044Z",
+          "lastSeen": "2026-04-24T10:36:19.044Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260424-1007-i1-b860",
+      "lastSeenRun": "run-20260424-1007-i1-b860",
+      "seenCount": 1
+    },
+    "98a0809eaa9e67ee": {
+      "fingerprint": "98a0809eaa9e67ee",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "settings-screen": {
+          "resourceId": "settings-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "settings-permissions-section": {
+          "resourceId": "settings-permissions-section",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "98a0809eaa9e67ee",
+              "count": 4
+            }
+          ]
+        },
+        "settings-preferences-section": {
+          "resourceId": "settings-preferences-section",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "settings-project-row": {
+          "resourceId": "settings-project-row",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1bdc44511752d352",
+              "count": 4
+            }
+          ]
+        },
+        "settings-vehicle-row": {
+          "resourceId": "settings-vehicle-row",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "ad38e9db194e25d8",
+              "count": 6
+            }
+          ]
+        },
+        "settings-language-row": {
+          "resourceId": "settings-language-row",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:50:33.179Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "249f215eccf040fb",
+              "count": 4
+            }
+          ]
+        },
+        "settings-legal-section": {
+          "resourceId": "settings-legal-section",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:14:36.589Z",
+          "lastSeen": "2026-04-27T09:51:19.945Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "7b38f96ef7879e74",
+              "count": 7
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260427-0810-ab24",
+      "lastSeenRun": "run-20260427-0948-aafd",
+      "seenCount": 3
+    },
+    "249f215eccf040fb": {
+      "fingerprint": "249f215eccf040fb",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:15:11.933Z",
+          "lastSeen": "2026-04-27T08:15:11.933Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:15:11.933Z",
+          "lastSeen": "2026-04-27T08:15:11.933Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:15:11.933Z",
+          "lastSeen": "2026-04-27T08:15:11.933Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "language-screen": {
+          "resourceId": "language-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:15:11.933Z",
+          "lastSeen": "2026-04-27T08:15:11.933Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "language-list": {
+          "resourceId": "language-list",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-27T08:15:11.933Z",
+          "lastSeen": "2026-04-27T08:15:11.933Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-0810-ab24",
+      "lastSeenRun": "run-20260427-0810-ab24",
+      "seenCount": 1
+    },
+    "22ee9303d16f9313": {
+      "fingerprint": "22ee9303d16f9313",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:42:53.934Z",
+          "lastSeen": "2026-04-27T11:50:54.754Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:42:53.934Z",
+          "lastSeen": "2026-04-27T11:50:54.754Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "tickets-screen": {
+          "resourceId": "tickets-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:42:53.934Z",
+          "lastSeen": "2026-04-27T11:50:54.754Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "tickets-date-picker-start": {
+          "resourceId": "tickets-date-picker-start",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:42:53.934Z",
+          "lastSeen": "2026-04-27T11:50:54.754Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "tickets-date-picker-end": {
+          "resourceId": "tickets-date-picker-end",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:42:53.934Z",
+          "lastSeen": "2026-04-27T11:50:54.754Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-0824-184b",
+      "lastSeenRun": "run-20260427-1149-f43f",
+      "seenCount": 2
+    },
+    "ad38e9db194e25d8": {
+      "fingerprint": "ad38e9db194e25d8",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "vehicle-screen": {
+          "resourceId": "vehicle-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "vehicle-list": {
+          "resourceId": "vehicle-list",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "vehicle-item": {
+          "resourceId": "vehicle-item",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "vehicle-confirm-button": {
+          "resourceId": "vehicle-confirm-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "vehicle-skip-button": {
+          "resourceId": "vehicle-skip-button",
+          "role": "android.widget.Button",
+          "text": null,
+          "firstSeen": "2026-04-27T08:48:35.457Z",
+          "lastSeen": "2026-04-27T08:48:35.457Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-0846-1d57",
+      "lastSeenRun": "run-20260427-0846-1d57",
+      "seenCount": 1
+    },
+    "57b050783c7d5229": {
+      "fingerprint": "57b050783c7d5229",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:14.815Z",
+          "lastSeen": "2026-04-27T09:51:20.345Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:14.815Z",
+          "lastSeen": "2026-04-27T09:51:20.345Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:14.815Z",
+          "lastSeen": "2026-04-27T09:51:20.345Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-0846-1d57",
+      "lastSeenRun": "run-20260427-0948-aafd",
+      "seenCount": 2
+    },
+    "f2d3e776824b3f74": {
+      "fingerprint": "f2d3e776824b3f74",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "main_header": {
+          "resourceId": "main_header",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "logo-container": {
+          "resourceId": "logo-container",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "site_header_logo": {
+          "resourceId": "site_header_logo",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "menu-container": {
+          "resourceId": "menu-container",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "ctas-container": {
+          "resourceId": "ctas-container",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-27T08:49:54.740Z",
+          "lastSeen": "2026-04-27T09:51:26.871Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-0846-1d57",
+      "lastSeenRun": "run-20260427-0948-aafd",
+      "seenCount": 2
+    },
+    "66567c313ee714df": {
+      "fingerprint": "66567c313ee714df",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:20:42.721Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:20:42.721Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "routes-screen": {
+          "resourceId": "routes-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:20:42.721Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "routes-search-bar": {
+          "resourceId": "routes-search-bar",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:20:42.721Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "vehicle-filter-button": {
+          "resourceId": "vehicle-filter-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:23:47.393Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "66178f229b5d016e",
+              "count": 1
+            }
+          ]
+        },
+        "date-picker-start": {
+          "resourceId": "date-picker-start",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:20:42.721Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "date-picker-end": {
+          "resourceId": "date-picker-end",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:20:42.721Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "more-filters-button": {
+          "resourceId": "more-filters-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T09:20:42.721Z",
+          "lastSeen": "2026-04-27T09:21:26.507Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "66178f229b5d016e",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "firstSeenRun": "run-20260427-0918-aecf",
+      "lastSeenRun": "run-20260427-0918-aecf",
+      "seenCount": 1
+    },
+    "66178f229b5d016e": {
+      "fingerprint": "66178f229b5d016e",
+      "activity": ".MainActivity",
+      "elements": {
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T09:21:27.271Z",
+          "lastSeen": "2026-04-27T09:21:27.271Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-0918-aecf",
+      "lastSeenRun": "run-20260427-0918-aecf",
+      "seenCount": 1
+    },
+    "c38d5fa9dfafc709": {
+      "fingerprint": "c38d5fa9dfafc709",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T11:51:35.571Z",
+          "lastSeen": "2026-04-27T11:51:35.571Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T11:51:35.571Z",
+          "lastSeen": "2026-04-27T11:51:35.571Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:51:35.571Z",
+          "lastSeen": "2026-04-27T11:51:35.571Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "select-containers-screen": {
+          "resourceId": "select-containers-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:51:35.571Z",
+          "lastSeen": "2026-04-27T11:51:35.571Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-1149-f43f",
+      "lastSeenRun": "run-20260427-1149-f43f",
+      "seenCount": 1
+    },
+    "714da116e0713657": {
+      "fingerprint": "714da116e0713657",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T11:52:32.083Z",
+          "lastSeen": "2026-04-27T11:52:32.083Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T11:52:32.083Z",
+          "lastSeen": "2026-04-27T11:52:32.083Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:52:32.083Z",
+          "lastSeen": "2026-04-27T11:52:32.083Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "select-ticket-type-screen": {
+          "resourceId": "select-ticket-type-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:52:32.083Z",
+          "lastSeen": "2026-04-27T11:52:32.083Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-1149-f43f",
+      "lastSeenRun": "run-20260427-1149-f43f",
+      "seenCount": 1
+    },
+    "d356a863597ed91c": {
+      "fingerprint": "d356a863597ed91c",
+      "activity": ".MainActivity",
+      "elements": {
+        "com.wastehero_mobileapp_navigator:id/action_bar_root": {
+          "resourceId": "com.wastehero_mobileapp_navigator:id/action_bar_root",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "back-button": {
+          "resourceId": "back-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "ticket-form-screen": {
+          "resourceId": "ticket-form-screen",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "ticket-form-preferred-date": {
+          "resourceId": "ticket-form-preferred-date",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:45.406Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "92cbf06bcb2d4c2d",
+              "count": 1
+            }
+          ]
+        },
+        "attachment-add-button": {
+          "resourceId": "attachment-add-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "attachment-camera-button": {
+          "resourceId": "attachment-camera-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:04:07.613Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 1
+            }
+          ]
+        },
+        "attachment-gallery-button": {
+          "resourceId": "attachment-gallery-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "attachment-audio-button": {
+          "resourceId": "attachment-audio-button",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "ticket-form-priority": {
+          "resourceId": "ticket-form-priority",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "ticket-form-description": {
+          "resourceId": "ticket-form-description",
+          "role": "android.widget.EditText",
+          "text": "Enter your description",
+          "firstSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-1149-f43f",
+      "lastSeenRun": "run-20260427-1159-e357",
+      "seenCount": 2
+    },
+    "92cbf06bcb2d4c2d": {
+      "fingerprint": "92cbf06bcb2d4c2d",
+      "activity": ".MainActivity",
+      "elements": {
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/parentPanel": {
+          "resourceId": "android:id/parentPanel",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/customPanel": {
+          "resourceId": "android:id/customPanel",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/custom": {
+          "resourceId": "android:id/custom",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/datePicker": {
+          "resourceId": "android:id/datePicker",
+          "role": "android.widget.DatePicker",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_header": {
+          "resourceId": "android:id/date_picker_header",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_header_year": {
+          "resourceId": "android:id/date_picker_header_year",
+          "role": "android.widget.TextView",
+          "text": "2026",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_header_date": {
+          "resourceId": "android:id/date_picker_header_date",
+          "role": "android.widget.TextView",
+          "text": "Mon, Apr 27",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/animator": {
+          "resourceId": "android:id/animator",
+          "role": "android.widget.ViewAnimator",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_day_picker": {
+          "resourceId": "android:id/date_picker_day_picker",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/day_picker_view_pager": {
+          "resourceId": "android:id/day_picker_view_pager",
+          "role": "com.android.internal.widget.ViewPager",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/month_view": {
+          "resourceId": "android:id/month_view",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/prev": {
+          "resourceId": "android:id/prev",
+          "role": "android.widget.ImageButton",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/next": {
+          "resourceId": "android:id/next",
+          "role": "android.widget.ImageButton",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:03:56.949Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "92cbf06bcb2d4c2d",
+              "count": 1
+            }
+          ]
+        },
+        "android:id/buttonPanel": {
+          "resourceId": "android:id/buttonPanel",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/button2": {
+          "resourceId": "android:id/button2",
+          "role": "android.widget.Button",
+          "text": "CANCEL",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:04:02.514Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "d356a863597ed91c",
+              "count": 1
+            }
+          ]
+        },
+        "android:id/button1": {
+          "resourceId": "android:id/button1",
+          "role": "android.widget.Button",
+          "text": "OK",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-1159-e357",
+      "lastSeenRun": "run-20260427-1159-e357",
+      "seenCount": 1
+    }
+  },
+  "transitions": [
+    {
+      "from": "1bdc44511752d352",
+      "via": "tap:back-button",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 3
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "tap:password",
+      "to": "e3deceb8dd3f9971",
+      "occurrences": 6
+    },
+    {
+      "from": "e3deceb8dd3f9971",
+      "via": "tap:android:id/content",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 3
+    },
+    {
+      "from": "64a9d0387a2dfb48",
+      "via": "tap:android:id/content",
+      "to": "1bdc44511752d352",
+      "occurrences": 1
+    },
+    {
+      "from": "e3deceb8dd3f9971",
+      "via": "tap:com.wastehero_mobileapp_navigator:id/action_bar_root",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 2
+    },
+    {
+      "from": "e3deceb8dd3f9971",
+      "via": "tap:login-button",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 1
+    },
+    {
+      "from": "e3deceb8dd3f9971",
+      "via": "tap:login-screen",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 1
+    },
+    {
+      "from": "1bdc44511752d352",
+      "via": "tap:project-next-button",
+      "to": "ed7f3fec825f2707",
+      "occurrences": 1
+    },
+    {
+      "from": "ed7f3fec825f2707",
+      "via": "tap:back-button",
+      "to": "1bdc44511752d352",
+      "occurrences": 1
+    },
+    {
+      "from": "1bdc44511752d352",
+      "via": "back",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 1
+    },
+    {
+      "from": "4498d59969487f98",
+      "via": "tap:project-next-button",
+      "to": "ed7f3fec825f2707",
+      "occurrences": 9
+    },
+    {
+      "from": "ed7f3fec825f2707",
+      "via": "tap:vehicle-confirm-button",
+      "to": "d9f6ae9967d67744",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "tap:dashboard-summary-tab",
+      "to": "cf03ee1debf04834",
+      "occurrences": 3
+    },
+    {
+      "from": "cf03ee1debf04834",
+      "via": "tap:dashboard-overview-tab",
+      "to": "7aad7b2944429653",
+      "occurrences": 1
+    },
+    {
+      "from": "cf03ee1debf04834",
+      "via": "back",
+      "to": "1245631aa3c43b77",
+      "occurrences": 2
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "1245631aa3c43b77",
+      "occurrences": 186
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "9c858ea8282fafb2",
+      "occurrences": 57
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "tap:android:id/content",
+      "to": "7aad7b2944429653",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "tap:com.wastehero_mobileapp_navigator:id/action_bar_root",
+      "to": "7aad7b2944429653",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "d26bb6e203cfc79c",
+      "occurrences": 3
+    },
+    {
+      "from": "d26bb6e203cfc79c",
+      "via": "tap:android:id/content",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "9c858ea8282fafb2",
+      "occurrences": 38
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "b30cbd21364f36a2",
+      "occurrences": 4
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "3f083045c2d37de3",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "c53728fcc3eeff21",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "6d34dec3fe046e5c",
+      "occurrences": 3
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "02a06c33dcdd45f1",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "046fb830adc3600e",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "37033013c1aa41e4",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "6428655fc339bafb",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "52894e043290d91e",
+      "occurrences": 2
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "4510979b6b4138b6",
+      "occurrences": 3
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "52894e043290d91e",
+      "occurrences": 2
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "c53728fcc3eeff21",
+      "occurrences": 4
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "ac69ba959a0438f4",
+      "occurrences": 1
+    },
+    {
+      "from": "ed7f3fec825f2707",
+      "via": "tap:vehicle-skip-button",
+      "to": "7aad7b2944429653",
+      "occurrences": 7
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "4363cf5b5514431e",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "3f083045c2d37de3",
+      "occurrences": 2
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "afec139b74793a7f",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "back",
+      "to": "046fb830adc3600e",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "6d34dec3fe046e5c",
+      "occurrences": 2
+    },
+    {
+      "from": "4498d59969487f98",
+      "via": "back",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 61
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "1245631aa3c43b77",
+      "occurrences": 643
+    },
+    {
+      "from": "64a9d0387a2dfb48",
+      "via": "tap:com.wastehero_mobileapp_navigator:id/action_bar_root",
+      "to": "4498d59969487f98",
+      "occurrences": 1
+    },
+    {
+      "from": "64a9d0387a2dfb48",
+      "via": "tap:project-list",
+      "to": "4498d59969487f98",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "9c858ea8282fafb2",
+      "occurrences": 49
+    },
+    {
+      "from": "64a9d0387a2dfb48",
+      "via": "tap:project-next-button",
+      "to": "4498d59969487f98",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 606
+    },
+    {
+      "from": "64a9d0387a2dfb48",
+      "via": "tap:project-screen",
+      "to": "4498d59969487f98",
+      "occurrences": 1
+    },
+    {
+      "from": "64a9d0387a2dfb48",
+      "via": "back",
+      "to": "da8ba9868736dd7d",
+      "occurrences": 202
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "b30cbd21364f36a2",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "64a9d0387a2dfb48",
+      "occurrences": 3
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "afec139b74793a7f",
+      "occurrences": 2
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "e5fcc0ef26844051",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "a5da49d90b1ec496",
+      "occurrences": 3
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "4510979b6b4138b6",
+      "occurrences": 3
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "b83b145ef26216c4",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "4510979b6b4138b6",
+      "occurrences": 9
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "d02f352058c86cfd",
+      "occurrences": 2
+    },
+    {
+      "from": "d26bb6e203cfc79c",
+      "via": "tap:com.google.android.apps.nexuslauncher:id/bc_smartspace_view",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "1187f0234fc1314b",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "a471cdae8cdc0cde",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "c53728fcc3eeff21",
+      "occurrences": 3
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "6d34dec3fe046e5c",
+      "occurrences": 8
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "ea6710ced6c768dd",
+      "occurrences": 2
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "ac69ba959a0438f4",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "52894e043290d91e",
+      "occurrences": 5
+    },
+    {
+      "from": "d26bb6e203cfc79c",
+      "via": "tap:com.google.android.apps.nexuslauncher:id/date",
+      "to": "3aa9e014439f352a",
+      "occurrences": 1
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:android:id/content",
+      "to": "1245631aa3c43b77",
+      "occurrences": 2
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "b51d57ccf8cbc3b3",
+      "occurrences": 116
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "b51d57ccf8cbc3b3",
+      "occurrences": 28
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "3aa9e014439f352a",
+      "occurrences": 4
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/action_bar_root",
+      "to": "b51d57ccf8cbc3b3",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "207b201881aa926b",
+      "occurrences": 4
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/base_page",
+      "to": "b51d57ccf8cbc3b3",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "b5e1ab8f839ca1b3",
+      "occurrences": 2
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/body_text_center",
+      "to": "b51d57ccf8cbc3b3",
+      "occurrences": 1
+    },
+    {
+      "from": "b5e1ab8f839ca1b3",
+      "via": "tap:android:id/content",
+      "to": "64a9d0387a2dfb48",
+      "occurrences": 1
+    },
+    {
+      "from": "d26bb6e203cfc79c",
+      "via": "tap:com.google.android.apps.nexuslauncher:id/date",
+      "to": "207b201881aa926b",
+      "occurrences": 1
+    },
+    {
+      "from": "52894e043290d91e",
+      "via": "back",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "bae8193319d35a10",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "b5e1ab8f839ca1b3",
+      "occurrences": 3
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "3f5bb738a935eb19",
+      "occurrences": 1
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/action_bar_root",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/base_page",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "f2289622fbbce2ff",
+      "occurrences": 1
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/body_text_center",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/footer",
+      "to": "b51d57ccf8cbc3b3",
+      "occurrences": 1
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/header",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "207b201881aa926b",
+      "via": "tap:com.google.android.calendar:id/image",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "9b9ab5b9d8f3b7e4",
+      "via": "tap:android:id/content",
+      "to": "64a9d0387a2dfb48",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "c936f714916407a8",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "046fb830adc3600e",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "3f083045c2d37de3",
+      "occurrences": 5
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "b83b145ef26216c4",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "97cfcc64fe62aa35",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "09c08f19af9616fe",
+      "occurrences": 1
+    },
+    {
+      "from": "da8ba9868736dd7d",
+      "via": "back",
+      "to": "a356b4a81aed59f2",
+      "occurrences": 1
+    },
+    {
+      "from": "d26bb6e203cfc79c",
+      "via": "tap:com.google.android.apps.nexuslauncher:id/drag_layer",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    },
+    {
+      "from": "1245631aa3c43b77",
+      "via": "back",
+      "to": "73e78e72a7be4264",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "tapAt:945,2280",
+      "to": "98a0809eaa9e67ee",
+      "occurrences": 3
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tap:settings-language-row",
+      "to": "249f215eccf040fb",
+      "occurrences": 1
+    },
+    {
+      "from": "249f215eccf040fb",
+      "via": "back",
+      "to": "98a0809eaa9e67ee",
+      "occurrences": 1
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tap:settings-project-row",
+      "to": "1bdc44511752d352",
+      "occurrences": 2
+    },
+    {
+      "from": "1bdc44511752d352",
+      "via": "back",
+      "to": "98a0809eaa9e67ee",
+      "occurrences": 1
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tap:settings-vehicle-row",
+      "to": "4c162b050d0b5839",
+      "occurrences": 1
+    },
+    {
+      "from": "ad38e9db194e25d8",
+      "via": "back",
+      "to": "98a0809eaa9e67ee",
+      "occurrences": 2
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tap:settings-legal-section",
+      "to": "c186395f55f3f88c",
+      "occurrences": 1
+    },
+    {
+      "from": "f2d3e776824b3f74",
+      "via": "back",
+      "to": "98a0809eaa9e67ee",
+      "occurrences": 1
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tapAt:135,2280",
+      "to": "7aad7b2944429653",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "tapAt:675,2280",
+      "to": "22ee9303d16f9313",
+      "occurrences": 4
+    },
+    {
+      "from": "4498d59969487f98",
+      "via": "tap:project-next-button",
+      "to": "4c162b050d0b5839",
+      "occurrences": 1
+    },
+    {
+      "from": "4c162b050d0b5839",
+      "via": "tap:vehicle-skip-button",
+      "to": "7aad7b2944429653",
+      "occurrences": 1
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tap:settings-vehicle-row",
+      "to": "ad38e9db194e25d8",
+      "occurrences": 1
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tap:settings-legal-section",
+      "to": "d9963608488b78ca",
+      "occurrences": 1
+    },
+    {
+      "from": "7aad7b2944429653",
+      "via": "tapAt:405,2280",
+      "to": "66567c313ee714df",
+      "occurrences": 2
+    },
+    {
+      "from": "66567c313ee714df",
+      "via": "tap:more-filters-button",
+      "to": "66178f229b5d016e",
+      "occurrences": 1
+    },
+    {
+      "from": "66178f229b5d016e",
+      "via": "tapAt:780,1860",
+      "to": "66567c313ee714df",
+      "occurrences": 1
+    },
+    {
+      "from": "66567c313ee714df",
+      "via": "tap:vehicle-filter-button",
+      "to": "66178f229b5d016e",
+      "occurrences": 1
+    },
+    {
+      "from": "66178f229b5d016e",
+      "via": "tapAt:295,1860",
+      "to": "66567c313ee714df",
+      "occurrences": 1
+    },
+    {
+      "from": "66567c313ee714df",
+      "via": "tapAt:945,2280",
+      "to": "98a0809eaa9e67ee",
+      "occurrences": 1
+    },
+    {
+      "from": "1bdc44511752d352",
+      "via": "tap:project-next-button",
+      "to": "ad38e9db194e25d8",
+      "occurrences": 1
+    },
+    {
+      "from": "ad38e9db194e25d8",
+      "via": "tap:vehicle-skip-button",
+      "to": "7aad7b2944429653",
+      "occurrences": 1
+    },
+    {
+      "from": "98a0809eaa9e67ee",
+      "via": "tap:settings-legal-section",
+      "to": "7b38f96ef7879e74",
+      "occurrences": 1
+    },
+    {
+      "from": "22ee9303d16f9313",
+      "via": "tapAt:540,2010",
+      "to": "c38d5fa9dfafc709",
+      "occurrences": 2
+    },
+    {
+      "from": "c38d5fa9dfafc709",
+      "via": "tapAt:540,2210",
+      "to": "714da116e0713657",
+      "occurrences": 2
+    },
+    {
+      "from": "714da116e0713657",
+      "via": "tapAt:540,2245",
+      "to": "d356a863597ed91c",
+      "occurrences": 2
+    },
+    {
+      "from": "d356a863597ed91c",
+      "via": "tap:ticket-form-preferred-date",
+      "to": "92cbf06bcb2d4c2d",
+      "occurrences": 1
+    },
+    {
+      "from": "92cbf06bcb2d4c2d",
+      "via": "tap:android:id/button2",
+      "to": "d356a863597ed91c",
+      "occurrences": 1
+    },
+    {
+      "from": "d356a863597ed91c",
+      "via": "tap:attachment-camera-button",
+      "to": "1245631aa3c43b77",
+      "occurrences": 1
+    }
+  ],
+  "mergedRunIds": [
+    "run-20260421-0844-2558",
+    "run-20260421-0850-39f4",
+    "run-20260421-0857-0a33",
+    "run-20260421-0903-8474",
+    "run-20260421-0907-6e39",
+    "run-20260421-0918-5b84",
+    "run-20260421-0921-1beb",
+    "run-20260421-1008-132d",
+    "run-20260421-1124-cb5e",
+    "run-20260421-1204-9f08",
+    "run-20260421-1225-a947",
+    "run-20260421-1245-2b74",
+    "run-20260424-0622-32ed",
+    "run-20260424-0632-de51",
+    "run-20260424-0831-41c9",
+    "run-20260424-0919-1577",
+    "run-20260424-0926-i0-3a65",
+    "run-20260424-0940-i0-c431",
+    "run-20260424-0947-i0-d22f",
+    "run-20260424-0948-i1-4cc5",
+    "run-20260424-1005-i0-9c8c",
+    "run-20260424-1007-i1-b860",
+    "run-20260424-1008-i2-bbb4",
+    "run-20260427-0624-i0-b6b0",
+    "run-20260427-0624-i1-c783",
+    "run-20260427-0739-76c9",
+    "run-20260427-0801-78ab",
+    "run-20260427-0810-ab24",
+    "run-20260427-0824-184b",
+    "run-20260427-0846-1d57",
+    "run-20260427-0918-aecf",
+    "run-20260427-0948-aafd",
+    "run-20260427-1149-f43f",
+    "run-20260427-1159-e357"
+  ]
+}

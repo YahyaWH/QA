@@ -1,0 +1,32 @@
+{
+  "name": "@wastehero-qa/android-qa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "qa-server": "tsx bin/qa-server.ts",
+    "diag-login": "tsx bin/diag-login.ts",
+    "publish": "tsx bin/publish.ts",
+    "replay": "tsx bin/replay.ts",
+    "reset-state": "tsx bin/reset-state.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "appium": "^2.5.0",
+    "dotenv": "^16.4.0",
+    "fast-xml-parser": "^4.3.0",
+    "nanoid": "^5.0.0",
+    "simple-git": "^3.24.0",
+    "webdriverio": "^8.38.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "appium-uiautomator2-driver": "^2.45.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
