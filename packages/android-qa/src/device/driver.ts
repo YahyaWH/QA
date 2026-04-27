@@ -15,8 +15,18 @@ export interface Driver {
   stop(): Promise<void>;
   getViewTree(): Promise<ViewNode>;
   getCurrentActivity(): Promise<string>;
+  /** Device window size in absolute pixels — same coordinate space as the
+   *  screenshot bytes and `tapAt(x, y)`. */
+  getWindowSize(): Promise<{ width: number; height: number }>;
   screenshot(): Promise<Buffer>;
   tap(resourceId: string): Promise<void>;
+  /**
+   * Tap at absolute device coordinates. Used when no resource-id is available
+   * or when multiple elements share the same id (e.g. list rows). Coordinates
+   * are device pixels; pair with `getViewTree()` / a screenshot review to pick
+   * a target. No-op if (x,y) lands on a non-interactive region.
+   */
+  tapAt(x: number, y: number): Promise<void>;
   type(resourceId: string, text: string): Promise<void>;
   swipe(direction: 'up' | 'down' | 'left' | 'right'): Promise<void>;
   back(): Promise<void>;

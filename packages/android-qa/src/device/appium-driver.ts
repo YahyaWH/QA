@@ -124,6 +124,11 @@ export class AppiumDriver implements Driver {
     return this.b().getCurrentActivity();
   }
 
+  async getWindowSize(): Promise<{ width: number; height: number }> {
+    const { width, height } = await this.b().getWindowSize();
+    return { width, height };
+  }
+
   async screenshot(): Promise<Buffer> {
     const base64 = await this.b().takeScreenshot();
     return Buffer.from(base64, 'base64');
@@ -132,6 +137,15 @@ export class AppiumDriver implements Driver {
   async tap(resourceId: string): Promise<void> {
     const el = await this.resolveElement(resourceId);
     await el.click();
+  }
+
+  async tapAt(x: number, y: number): Promise<void> {
+    if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || y < 0) {
+      throw new Error(`AppiumDriver.tapAt: invalid coordinates (${x}, ${y})`);
+    }
+    await this.b().executeScript('mobile: clickGesture', [
+      { x: Math.round(x), y: Math.round(y) },
+    ]);
   }
 
   async type(resourceId: string, text: string): Promise<void> {

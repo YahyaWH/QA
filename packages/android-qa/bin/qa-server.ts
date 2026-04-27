@@ -152,6 +152,11 @@ function newRunId(): string {
 
 const ActionSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('tap'), elementId: z.string().min(1) }),
+  z.object({
+    kind: z.literal('tapAt'),
+    x: z.number().int().min(0),
+    y: z.number().int().min(0),
+  }),
   z.object({ kind: z.literal('type'), elementId: z.string().min(1), text: z.string() }),
   z.object({ kind: z.literal('swipe'), direction: z.enum(['up', 'down', 'left', 'right']) }),
   z.object({ kind: z.literal('back') }),
@@ -193,6 +198,8 @@ interface ServerState {
   prevLogcatTs: number;
   /** Set true after /finalize starts so /perceive and /act stop accepting. */
   finalized: boolean;
+  /** Device pixel dimensions — same coordinate space as screenshots + tapAt. */
+  windowSize: { width: number; height: number };
 }
 
 // --------------------------------------------------------------------------
@@ -293,6 +300,9 @@ async function bootstrap(args: Args): Promise<ServerState> {
     throw err;
   }
 
+  const windowSize = await driver.getWindowSize();
+  log(`windowSize=${windowSize.width}x${windowSize.height}`);
+
   return {
     config,
     role,
@@ -311,6 +321,7 @@ async function bootstrap(args: Args): Promise<ServerState> {
     state,
     prevLogcatTs: Date.now(),
     finalized: false,
+    windowSize,
   };
 }
 
@@ -361,6 +372,7 @@ async function handleStatus(s: ServerState, res: ServerResponse): Promise<void> 
     appVersion: s.appVersion,
     appMapScreens: Object.keys(s.appMap.screens).length,
     appMapTransitions: s.appMap.transitions.length,
+    windowSize: s.windowSize,
     turn: s.state.history.length,
     findings: s.state.findings.length,
     crashCount: s.state.counters.crashCount,
@@ -447,6 +459,7 @@ async function handlePerceive(s: ServerState, res: ServerResponse): Promise<void
     crashCount: s.state.counters.crashCount,
     crashThisTurn: !!crash,
     screenshotPath,
+    windowSize: s.windowSize,
     screen: {
       fingerprint: screen.fingerprint,
       activity: screen.activity,

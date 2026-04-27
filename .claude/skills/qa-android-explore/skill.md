@@ -53,6 +53,7 @@ The response shape:
   runId, turn, fingerprint, activity, isNewScreen,
   crashCount, crashThisTurn,
   screenshotPath,                            // absolute path to a fresh PNG
+  windowSize: { width, height },             // device pixels — same coord space as the PNG
   screen: {
     fingerprint, activity,
     elements: [{ resourceId, role, text, tapped, marked, outcomes }]
@@ -79,22 +80,44 @@ If you spot a visual issue worth filing, **note it in your turn message** and in
 Pick the **single best action** for this turn. Rules, in order:
 
 1. **Frontier priorities** — prefer `priority=100` (never tapped) over `80` (tapped but leads to unexplored) over `60` (stale revisit). Tie-break alphabetically by `elementId` (matches the deterministic frontier sort).
-2. **Deny list** — never emit an action whose stringified form (`tap:elementId`, `type:elementId`, `swipe:up`, `back`, `scrollTo:elementId`, `done:reason`) is in `denyList` or has `denyList` entry as a prefix. The server will reject it with 400 anyway, but checking client-side avoids the round trip.
-3. **Anti-repeat** — if the previous action made no progress (`historyTail[-1].outcomeFp === historyTail[-1].screenFp` or `null`), do **not** repeat it. Pick a different element, a swipe, or `back`.
-4. **Anti-cycle** — if the last 4–6 turns are bouncing between known fingerprints (e.g. `A→B→A→B`), break the cycle by either (a) tapping a band-2 element that you have not previously tapped, (b) trying `swipe` to reveal hidden content, or (c) calling `done` with a clear reason — but **only if you've genuinely run out of frontier**.
-5. **Done condition** — when the frontier on every visited screen is saturated with priority-60 stale-revisit entries and no band-1/band-2 work remains, emit `{kind: "done", reason: "..."}` and finalize.
+2. **Deny list** — never emit an action whose stringified form (`tap:elementId`, `tapAt:x,y`, `type:elementId`, `swipe:up`, `back`, `scrollTo:elementId`, `done:reason`) is in `denyList` or has `denyList` entry as a prefix. The server will reject it with 400 anyway, but checking client-side avoids the round trip.
+3. **Anti-repeat** — if the previous action made no progress (`historyTail[-1].outcomeFp === historyTail[-1].screenFp` or `null`), do **not** repeat it. Pick a different element, a swipe, a `tapAt` on a different visible region, or `back`.
+4. **Anti-cycle** — if the last 4–6 turns are bouncing between known fingerprints (e.g. `A→B→A→B`), break the cycle by either (a) tapping a band-2 element that you have not previously tapped, (b) `tapAt` on a different visible row/card the resource-id-based tap can't reach, (c) trying `swipe` to reveal hidden content, or (d) calling `done` with a clear reason — but **only if you've genuinely run out of frontier AND coordinate-distinct visible elements**.
+5. **Done condition** — when the frontier is saturated AND the screenshot shows no further visible-but-uncovered targets you could `tapAt`, emit `{kind: "done", reason: "..."}` and finalize.
 
 Avoid `back` as a default. The deleted Claude-API path used to fall through to `back` whenever its API call failed, which produced 400-turn back-loops. **Pressing `back` should be deliberate** — only when you actively want to leave a screen and you can name the reason.
+
+**Saturation ≠ done.** An empty frontier means every *resource-id* on this screen has been tapped. The screenshot may still show 2–10 visually distinct rows / cards / tiles that share resource-ids. Before declaring done, scan the screenshot for these and prefer `tapAt` on the next unvisited one.
 
 Action shapes:
 ```ts
 { kind: "tap",      elementId: "..." }
+{ kind: "tapAt",    x: number, y: number }   // absolute device px — see "Coordinate-based tap" below
 { kind: "type",     elementId: "...", text: "..." }
 { kind: "swipe",    direction: "up"|"down"|"left"|"right" }
 { kind: "back" }
 { kind: "scrollTo", elementId: "..." }       // scroll a list/scroll-view to bring elementId into view
 { kind: "done",     reason: "..." }          // does not dispatch; signals you're ready to finalize
 ```
+
+#### Coordinate-based tap (`tapAt`)
+
+`tap` resolves a `resourceId` via UIAutomator's accessibility-id / resource-id selectors, which find the **first** matching element. When multiple visible elements share the same resource-id (list rows on the project-select screen, identical card views on a feed, etc.), `tap` cannot reach rows 2..N.
+
+`tapAt` bypasses the selector and clicks at absolute device pixels. The screenshot you `Read`ed is at the same coordinate space — top-left is `(0, 0)`, bottom-right is `(windowSize.width, windowSize.height)`. The Pixel 7 AVD is `1080x2400` so a tap on a list row near `y=1100` lands ~halfway down.
+
+**When to use `tapAt` instead of `tap`:**
+- Frontier on the current screen is empty (everything's marked tapped) but the screenshot shows multiple visually distinct rows / cards / tiles you haven't really visited. The persisted `tapped=true` flag on a single resource-id was set by visiting row 1 — rows 2..N are still unexplored *visually* and `tapAt` is the only way to reach them.
+- An element you want to interact with has no `resourceId` at all (it shows up in the screenshot but not in `screen.elements`).
+- A button is part of a complex composite that the tree exposes as a non-clickable parent (e.g. text + icon both rendered from a single ViewGroup with no id).
+
+**How to pick coordinates:**
+1. `Read` `screenshotPath`. The image dimensions match `windowSize` — read the pixel position of the target element directly off the visual.
+2. Aim at the **center of the element**, not the edge. List rows are usually 150-220px tall, so y = (rowTop + rowBottom) / 2.
+3. Round to integers. Negative values are rejected by the schema.
+4. Validate against `windowSize` before sending — `x < width && y < height`. The server will dispatch a tap outside bounds and Appium will fail silently.
+
+**`tapAt` does not advance the persisted-frontier `tapped` flag.** That flag is keyed by resource-id; coordinate-based taps have no element id to attribute progress to. The transition (origin → outcome) is still recorded in `session.json.history` and folded into the canonical app-map's `transitions` array via `via: "tapAt:<x>,<y>"`, so the run still grows coverage. After a successful `tapAt` the next `/perceive` will re-tree the new screen and any genuinely new resource-ids on it will land in the frontier at priority 100.
 
 ### 4. Act
 

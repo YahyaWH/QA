@@ -136,10 +136,14 @@ describe('login', () => {
       async getCurrentActivity(): Promise<string> {
         return this.submitted ? '.HomeActivity' : '.LoginActivity';
       }
+      async getWindowSize(): Promise<{ width: number; height: number }> {
+        return { width: 1080, height: 2400 };
+      }
       async screenshot(): Promise<Buffer> { return Buffer.alloc(0); }
       async tap(resourceId: string): Promise<void> {
         if (resourceId === 'com.wastehero:id/submit-btn') this.submitted = true;
       }
+      async tapAt(): Promise<void> {}
       async type(): Promise<void> {}
       async swipe(): Promise<void> {}
       async back(): Promise<void> {}

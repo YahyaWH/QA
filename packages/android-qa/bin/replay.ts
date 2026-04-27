@@ -59,13 +59,15 @@ function sessionPathFor(runId: string): string {
   );
 }
 
-/** Dispatch one recorded action onto a live driver. Mirrors the orchestrator's
- *  internal dispatch switch (`src/agent/orchestrator.ts:dispatchAction`) so
- *  behaviour stays aligned — any new action kind must be added in both. */
+/** Dispatch one recorded action onto a live driver. Mirrors the qa-server's
+ *  dispatch switch (`src/agent/handlers.ts:dispatchAction`) so behaviour stays
+ *  aligned — any new action kind must be added in both. */
 async function dispatchAction(driver: AppiumDriver, action: Action): Promise<void> {
   switch (action.kind) {
     case 'tap':
       return driver.tap(action.elementId);
+    case 'tapAt':
+      return driver.tapAt(action.x, action.y);
     case 'type':
       return driver.type(action.elementId, action.text);
     case 'swipe':
@@ -84,6 +86,8 @@ function describeAction(action: Action): string {
   switch (action.kind) {
     case 'tap':
       return `tap ${action.elementId}`;
+    case 'tapAt':
+      return `tapAt (${action.x}, ${action.y})`;
     case 'type':
       return `type ${action.elementId} "${action.text}"`;
     case 'swipe':

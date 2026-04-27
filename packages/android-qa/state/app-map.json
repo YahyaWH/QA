@@ -1,6 +1,6 @@
 {
   "appVersion": "v2.4.0-rc.7",
-  "generatedAt": "2026-04-27T06:56:07.797Z",
+  "generatedAt": "2026-04-27T07:40:43.617Z",
   "schemaVersion": 1,
   "screens": {
     "1bdc44511752d352": {
@@ -552,13 +552,13 @@
           "role": "android.widget.LinearLayout",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T06:26:22.023Z",
+          "lastSeen": "2026-04-27T07:41:30.059Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 288
+              "count": 576
             }
           ]
         },
@@ -567,13 +567,13 @@
           "role": "android.widget.FrameLayout",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T06:26:22.023Z",
+          "lastSeen": "2026-04-27T07:41:30.059Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 288
+              "count": 576
             }
           ]
         },
@@ -582,13 +582,13 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T06:26:22.023Z",
+          "lastSeen": "2026-04-27T07:41:30.059Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 144
+              "count": 288
             }
           ]
         },
@@ -597,13 +597,13 @@
           "role": "android.widget.ScrollView",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T06:26:22.023Z",
+          "lastSeen": "2026-04-27T07:41:30.059Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 288
+              "count": 576
             }
           ]
         },
@@ -612,13 +612,13 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T06:26:22.023Z",
+          "lastSeen": "2026-04-27T07:43:10.257Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 288
+              "count": 577
             }
           ]
         },
@@ -627,20 +627,20 @@
           "role": "android.widget.Button",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T06:26:22.023Z",
+          "lastSeen": "2026-04-27T07:41:30.059Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "ed7f3fec825f2707",
-              "count": 432
+              "count": 864
             }
           ]
         }
       },
       "firstSeenRun": "run-20260424-0632-de51",
-      "lastSeenRun": "run-20260427-0624-i1-c783",
-      "seenCount": 11
+      "lastSeenRun": "run-20260427-0739-76c9",
+      "seenCount": 12
     },
     "7aad7b2944429653": {
       "fingerprint": "7aad7b2944429653",
@@ -1667,7 +1667,7 @@
       "from": "4498d59969487f98",
       "via": "back",
       "to": "da8ba9868736dd7d",
-      "occurrences": 60
+      "occurrences": 61
     },
     {
       "from": "da8ba9868736dd7d",
@@ -2043,6 +2043,7 @@
     "run-20260424-1007-i1-b860",
     "run-20260424-1008-i2-bbb4",
     "run-20260427-0624-i0-b6b0",
-    "run-20260427-0624-i1-c783"
+    "run-20260427-0624-i1-c783",
+    "run-20260427-0739-76c9"
   ]
 }

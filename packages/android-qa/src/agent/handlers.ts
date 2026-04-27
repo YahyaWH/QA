@@ -160,6 +160,8 @@ export function stringifyAction(action: Action): string {
     case 'type':
     case 'scrollTo':
       return `${action.kind}:${action.elementId}`;
+    case 'tapAt':
+      return `tapAt:${action.x},${action.y}`;
     case 'swipe':
       return `swipe:${action.direction}`;
     case 'back':
@@ -224,6 +226,8 @@ export async function dispatchAction(driver: Driver, action: Action): Promise<vo
   switch (action.kind) {
     case 'tap':
       return driver.tap(action.elementId);
+    case 'tapAt':
+      return driver.tapAt(action.x, action.y);
     case 'type':
       return driver.type(action.elementId, action.text);
     case 'swipe':

@@ -46,6 +46,7 @@ export interface ViewElement {
 
 export type Action =
   | { kind: 'tap'; elementId: string }
+  | { kind: 'tapAt'; x: number; y: number }
   | { kind: 'type'; elementId: string; text: string }
   | { kind: 'swipe'; direction: 'up' | 'down' | 'left' | 'right' }
   | { kind: 'back' }

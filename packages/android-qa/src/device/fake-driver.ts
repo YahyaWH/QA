@@ -42,6 +42,7 @@ export interface FakeDriverOptions {
  */
 export type RecordedAction =
   | { kind: 'tap'; resourceId: string }
+  | { kind: 'tapAt'; x: number; y: number }
   | { kind: 'type'; resourceId: string; text: string }
   | { kind: 'swipe'; direction: 'up' | 'down' | 'left' | 'right' }
   | { kind: 'back' }
@@ -97,6 +98,11 @@ export class FakeDriver implements Driver {
     return this.currentScreen().activity;
   }
 
+  async getWindowSize(): Promise<{ width: number; height: number }> {
+    this.requireStarted('getWindowSize');
+    return { width: 1080, height: 2400 };
+  }
+
   async screenshot(): Promise<Buffer> {
     this.requireStarted('screenshot');
     return Buffer.from('fake-screenshot');
@@ -106,6 +112,12 @@ export class FakeDriver implements Driver {
     this.requireStarted('tap');
     this.actionsRecorded.push({ kind: 'tap', resourceId });
     this.applyTransition(`tap:${resourceId}`);
+  }
+
+  async tapAt(x: number, y: number): Promise<void> {
+    this.requireStarted('tapAt');
+    this.actionsRecorded.push({ kind: 'tapAt', x, y });
+    this.applyTransition(`tapAt:${x},${y}`);
   }
 
   async type(resourceId: string, text: string): Promise<void> {
