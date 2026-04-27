@@ -83,6 +83,12 @@ export class AppiumDriver implements Driver {
       // never start on a stale screen from a previous run.
       'appium:forceAppLaunch': true,
       'appium:autoGrantPermissions': this.options.autoGrantPermissions ?? true,
+      // Default Appium newCommandTimeout is 60s — too short when a Claude
+      // Code skill drives the loop turn-by-turn (each turn includes
+      // screenshot review which routinely takes 30-90s in conversation).
+      // Setting to 1 hour gives the skill plenty of room before Appium
+      // garbage-collects the session as idle.
+      'appium:newCommandTimeout': 3600,
     };
     // udid and avd are both valid ways to target a device, but in parallel mode
     // every instance shares the same AVD name and the uiautomator2 driver will

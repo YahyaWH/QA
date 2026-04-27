@@ -1,6 +1,6 @@
 {
   "appVersion": "v2.4.0-rc.7",
-  "generatedAt": "2026-04-27T07:40:43.617Z",
+  "generatedAt": "2026-04-27T08:02:10.490Z",
   "schemaVersion": 1,
   "screens": {
     "1bdc44511752d352": {
@@ -423,13 +423,13 @@
           "role": "android.widget.LinearLayout",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:38.890Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "ed7f3fec825f2707",
-              "count": 2
+              "count": 4
             }
           ]
         },
@@ -438,13 +438,13 @@
           "role": "android.widget.FrameLayout",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:38.890Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "ed7f3fec825f2707",
-              "count": 4
+              "count": 8
             }
           ]
         },
@@ -453,13 +453,13 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:49.456Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "ed7f3fec825f2707",
-              "count": 1
+              "count": 2
             }
           ]
         },
@@ -468,13 +468,13 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:38.890Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "1bdc44511752d352",
-              "count": 4
+              "count": 8
             }
           ]
         },
@@ -483,13 +483,13 @@
           "role": "android.widget.ScrollView",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:45.619Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "ed7f3fec825f2707",
-              "count": 1
+              "count": 2
             }
           ]
         },
@@ -498,13 +498,13 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:41.835Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "ed7f3fec825f2707",
-              "count": 1
+              "count": 2
             }
           ]
         },
@@ -513,13 +513,13 @@
           "role": "android.widget.Button",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:38.890Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "d9f6ae9967d67744",
-              "count": 2
+              "count": 4
             }
           ]
         },
@@ -528,20 +528,20 @@
           "role": "android.widget.Button",
           "text": null,
           "firstSeen": "2026-04-21T12:05:24.124Z",
-          "lastSeen": "2026-04-24T08:32:54.637Z",
+          "lastSeen": "2026-04-27T08:04:47.773Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "7aad7b2944429653",
-              "count": 1
+              "count": 2
             }
           ]
         }
       },
       "firstSeenRun": "run-20260421-1204-9f08",
-      "lastSeenRun": "run-20260424-0831-41c9",
-      "seenCount": 3
+      "lastSeenRun": "run-20260427-0801-78ab",
+      "seenCount": 4
     },
     "4498d59969487f98": {
       "fingerprint": "4498d59969487f98",
@@ -552,13 +552,13 @@
           "role": "android.widget.LinearLayout",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T07:41:30.059Z",
+          "lastSeen": "2026-04-27T08:02:45.834Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 576
+              "count": 1152
             }
           ]
         },
@@ -567,13 +567,13 @@
           "role": "android.widget.FrameLayout",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T07:41:30.059Z",
+          "lastSeen": "2026-04-27T08:02:45.834Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 576
+              "count": 1152
             }
           ]
         },
@@ -582,22 +582,7 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T07:41:30.059Z",
-          "tapped": true,
-          "outcomes": [
-            {
-              "action": "tap",
-              "ledToScreen": "4498d59969487f98",
-              "count": 288
-            }
-          ]
-        },
-        "project-list": {
-          "resourceId": "project-list",
-          "role": "android.widget.ScrollView",
-          "text": null,
-          "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T07:41:30.059Z",
+          "lastSeen": "2026-04-27T08:02:45.834Z",
           "tapped": true,
           "outcomes": [
             {
@@ -607,18 +592,33 @@
             }
           ]
         },
-        "project-item": {
-          "resourceId": "project-item",
-          "role": "android.view.ViewGroup",
+        "project-list": {
+          "resourceId": "project-list",
+          "role": "android.widget.ScrollView",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T07:43:10.257Z",
+          "lastSeen": "2026-04-27T08:02:45.834Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "4498d59969487f98",
-              "count": 577
+              "count": 1152
+            }
+          ]
+        },
+        "project-item": {
+          "resourceId": "project-item",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-24T06:32:27.209Z",
+          "lastSeen": "2026-04-27T08:02:45.834Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "4498d59969487f98",
+              "count": 1154
             }
           ]
         },
@@ -627,20 +627,20 @@
           "role": "android.widget.Button",
           "text": null,
           "firstSeen": "2026-04-24T06:32:27.209Z",
-          "lastSeen": "2026-04-27T07:41:30.059Z",
+          "lastSeen": "2026-04-27T08:04:22.004Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "ed7f3fec825f2707",
-              "count": 864
+              "count": 1729
             }
           ]
         }
       },
       "firstSeenRun": "run-20260424-0632-de51",
-      "lastSeenRun": "run-20260427-0739-76c9",
-      "seenCount": 12
+      "lastSeenRun": "run-20260427-0801-78ab",
+      "seenCount": 13
     },
     "7aad7b2944429653": {
       "fingerprint": "7aad7b2944429653",
@@ -1481,7 +1481,7 @@
       "from": "4498d59969487f98",
       "via": "tap:project-next-button",
       "to": "ed7f3fec825f2707",
-      "occurrences": 2
+      "occurrences": 3
     },
     {
       "from": "ed7f3fec825f2707",
@@ -2044,6 +2044,7 @@
     "run-20260424-1008-i2-bbb4",
     "run-20260427-0624-i0-b6b0",
     "run-20260427-0624-i1-c783",
-    "run-20260427-0739-76c9"
+    "run-20260427-0739-76c9",
+    "run-20260427-0801-78ab"
   ]
 }
