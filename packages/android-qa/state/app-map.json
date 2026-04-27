@@ -1,6 +1,6 @@
 {
   "appVersion": "v2.4.0-rc.7",
-  "generatedAt": "2026-04-27T11:50:01.795Z",
+  "generatedAt": "2026-04-27T12:00:42.470Z",
   "schemaVersion": 1,
   "screens": {
     "1bdc44511752d352": {
@@ -651,13 +651,13 @@
           "role": "android.widget.LinearLayout",
           "text": null,
           "firstSeen": "2026-04-24T06:32:49.748Z",
-          "lastSeen": "2026-04-27T08:48:05.406Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "7aad7b2944429653",
-              "count": 8
+              "count": 16
             }
           ]
         },
@@ -666,13 +666,13 @@
           "role": "android.widget.FrameLayout",
           "text": null,
           "firstSeen": "2026-04-24T06:32:49.748Z",
-          "lastSeen": "2026-04-27T08:48:05.406Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "7aad7b2944429653",
-              "count": 8
+              "count": 16
             }
           ]
         },
@@ -681,13 +681,13 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-24T06:32:49.748Z",
-          "lastSeen": "2026-04-27T08:48:05.406Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "7aad7b2944429653",
-              "count": 8
+              "count": 16
             }
           ]
         },
@@ -696,13 +696,13 @@
           "role": "android.view.View",
           "text": null,
           "firstSeen": "2026-04-24T06:32:49.748Z",
-          "lastSeen": "2026-04-27T08:48:05.406Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "7aad7b2944429653",
-              "count": 8
+              "count": 16
             }
           ]
         },
@@ -711,13 +711,13 @@
           "role": "android.view.View",
           "text": null,
           "firstSeen": "2026-04-24T06:32:49.748Z",
-          "lastSeen": "2026-04-27T08:48:05.406Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "cf03ee1debf04834",
-              "count": 24
+              "count": 48
             }
           ]
         },
@@ -726,13 +726,13 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-24T06:32:49.748Z",
-          "lastSeen": "2026-04-27T08:48:05.406Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "7aad7b2944429653",
-              "count": 8
+              "count": 16
             }
           ]
         },
@@ -741,20 +741,20 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-24T06:32:49.748Z",
-          "lastSeen": "2026-04-27T08:48:05.406Z",
+          "lastSeen": "2026-04-27T12:04:10.846Z",
           "tapped": true,
           "outcomes": [
             {
               "action": "tap",
               "ledToScreen": "7aad7b2944429653",
-              "count": 8
+              "count": 16
             }
           ]
         }
       },
       "firstSeenRun": "run-20260424-0632-de51",
-      "lastSeenRun": "run-20260427-0846-1d57",
-      "seenCount": 4
+      "lastSeenRun": "run-20260427-1159-e357",
+      "seenCount": 5
     },
     "cf03ee1debf04834": {
       "fingerprint": "cf03ee1debf04834",
@@ -2051,7 +2051,7 @@
           "role": "android.widget.LinearLayout",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2060,7 +2060,7 @@
           "role": "android.widget.FrameLayout",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2069,7 +2069,7 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2078,7 +2078,7 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2087,16 +2087,22 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
-          "tapped": false,
-          "outcomes": []
+          "lastSeen": "2026-04-27T12:02:45.406Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "92cbf06bcb2d4c2d",
+              "count": 1
+            }
+          ]
         },
         "attachment-add-button": {
           "resourceId": "attachment-add-button",
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2105,16 +2111,22 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
-          "tapped": false,
-          "outcomes": []
+          "lastSeen": "2026-04-27T12:04:07.613Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "1245631aa3c43b77",
+              "count": 1
+            }
+          ]
         },
         "attachment-gallery-button": {
           "resourceId": "attachment-gallery-button",
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2123,7 +2135,7 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2132,7 +2144,7 @@
           "role": "android.view.ViewGroup",
           "text": null,
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         },
@@ -2141,13 +2153,187 @@
           "role": "android.widget.EditText",
           "text": "Enter your description",
           "firstSeen": "2026-04-27T11:53:13.901Z",
-          "lastSeen": "2026-04-27T11:53:13.901Z",
+          "lastSeen": "2026-04-27T12:02:15.732Z",
           "tapped": false,
           "outcomes": []
         }
       },
       "firstSeenRun": "run-20260427-1149-f43f",
-      "lastSeenRun": "run-20260427-1149-f43f",
+      "lastSeenRun": "run-20260427-1159-e357",
+      "seenCount": 2
+    },
+    "92cbf06bcb2d4c2d": {
+      "fingerprint": "92cbf06bcb2d4c2d",
+      "activity": ".MainActivity",
+      "elements": {
+        "android:id/content": {
+          "resourceId": "android:id/content",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/parentPanel": {
+          "resourceId": "android:id/parentPanel",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/customPanel": {
+          "resourceId": "android:id/customPanel",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/custom": {
+          "resourceId": "android:id/custom",
+          "role": "android.widget.FrameLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/datePicker": {
+          "resourceId": "android:id/datePicker",
+          "role": "android.widget.DatePicker",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_header": {
+          "resourceId": "android:id/date_picker_header",
+          "role": "android.widget.LinearLayout",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_header_year": {
+          "resourceId": "android:id/date_picker_header_year",
+          "role": "android.widget.TextView",
+          "text": "2026",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_header_date": {
+          "resourceId": "android:id/date_picker_header_date",
+          "role": "android.widget.TextView",
+          "text": "Mon, Apr 27",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/animator": {
+          "resourceId": "android:id/animator",
+          "role": "android.widget.ViewAnimator",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/date_picker_day_picker": {
+          "resourceId": "android:id/date_picker_day_picker",
+          "role": "android.view.ViewGroup",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/day_picker_view_pager": {
+          "resourceId": "android:id/day_picker_view_pager",
+          "role": "com.android.internal.widget.ViewPager",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/month_view": {
+          "resourceId": "android:id/month_view",
+          "role": "android.view.View",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/prev": {
+          "resourceId": "android:id/prev",
+          "role": "android.widget.ImageButton",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/next": {
+          "resourceId": "android:id/next",
+          "role": "android.widget.ImageButton",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:03:56.949Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "92cbf06bcb2d4c2d",
+              "count": 1
+            }
+          ]
+        },
+        "android:id/buttonPanel": {
+          "resourceId": "android:id/buttonPanel",
+          "role": "android.widget.ScrollView",
+          "text": null,
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        },
+        "android:id/button2": {
+          "resourceId": "android:id/button2",
+          "role": "android.widget.Button",
+          "text": "CANCEL",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:04:02.514Z",
+          "tapped": true,
+          "outcomes": [
+            {
+              "action": "tap",
+              "ledToScreen": "d356a863597ed91c",
+              "count": 1
+            }
+          ]
+        },
+        "android:id/button1": {
+          "resourceId": "android:id/button1",
+          "role": "android.widget.Button",
+          "text": "OK",
+          "firstSeen": "2026-04-27T12:02:46.645Z",
+          "lastSeen": "2026-04-27T12:02:46.645Z",
+          "tapped": false,
+          "outcomes": []
+        }
+      },
+      "firstSeenRun": "run-20260427-1159-e357",
+      "lastSeenRun": "run-20260427-1159-e357",
       "seenCount": 1
     }
   },
@@ -2216,7 +2402,7 @@
       "from": "4498d59969487f98",
       "via": "tap:project-next-button",
       "to": "ed7f3fec825f2707",
-      "occurrences": 8
+      "occurrences": 9
     },
     {
       "from": "ed7f3fec825f2707",
@@ -2366,7 +2552,7 @@
       "from": "ed7f3fec825f2707",
       "via": "tap:vehicle-skip-button",
       "to": "7aad7b2944429653",
-      "occurrences": 6
+      "occurrences": 7
     },
     {
       "from": "1245631aa3c43b77",
@@ -2816,7 +3002,7 @@
       "from": "7aad7b2944429653",
       "via": "tapAt:675,2280",
       "to": "22ee9303d16f9313",
-      "occurrences": 3
+      "occurrences": 4
     },
     {
       "from": "4498d59969487f98",
@@ -2900,18 +3086,36 @@
       "from": "22ee9303d16f9313",
       "via": "tapAt:540,2010",
       "to": "c38d5fa9dfafc709",
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "from": "c38d5fa9dfafc709",
       "via": "tapAt:540,2210",
       "to": "714da116e0713657",
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "from": "714da116e0713657",
       "via": "tapAt:540,2245",
       "to": "d356a863597ed91c",
+      "occurrences": 2
+    },
+    {
+      "from": "d356a863597ed91c",
+      "via": "tap:ticket-form-preferred-date",
+      "to": "92cbf06bcb2d4c2d",
+      "occurrences": 1
+    },
+    {
+      "from": "92cbf06bcb2d4c2d",
+      "via": "tap:android:id/button2",
+      "to": "d356a863597ed91c",
+      "occurrences": 1
+    },
+    {
+      "from": "d356a863597ed91c",
+      "via": "tap:attachment-camera-button",
+      "to": "1245631aa3c43b77",
       "occurrences": 1
     }
   ],
@@ -2948,6 +3152,7 @@
     "run-20260427-0846-1d57",
     "run-20260427-0918-aecf",
     "run-20260427-0948-aafd",
-    "run-20260427-1149-f43f"
+    "run-20260427-1149-f43f",
+    "run-20260427-1159-e357"
   ]
 }
