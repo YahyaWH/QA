@@ -177,13 +177,25 @@ export function scanLogcat(lines: string[]): RawFinding[] {
       });
       continue;
     }
-    const httpFail = line.match(/\b(5\d{2})\b.*?(https?:\/\/\S+|\.\S+\/\S+)/);
+    // HTTP 5xx — require explicit HTTP context to avoid matching PID columns
+    // or other 3-digit numbers that happen to start with 5. Three accepted
+    // shapes:
+    //   - `HTTP/1.1 5xx`              (server response line)
+    //   - `OkHttp ... <5xx>`           (Android's HTTP client logs status)
+    //   - `5xx <reason phrase>`        (e.g. "503 Service Unavailable")
+    const httpFail =
+      line.match(/HTTP\/\d\.\d (5\d{2})\b/) ??
+      line.match(/\bOkHttp\b[^\n]*?\b(5\d{2})\b/) ??
+      line.match(/\b(5\d{2})\s+(Internal Server Error|Bad Gateway|Service Unavailable|Gateway Timeout|HTTP Version Not Supported|Insufficient Storage|Loop Detected|Not Extended|Network Authentication Required)\b/);
     if (httpFail) {
+      const url = line.match(/https?:\/\/\S+/);
       out.push({
         element: null,
         category: 'B',
         severity: 'med',
-        summary: `Backend HTTP ${httpFail[1]} on ${httpFail[2]}`,
+        summary: url
+          ? `Backend HTTP ${httpFail[1]} on ${url[0]}`
+          : `Backend HTTP ${httpFail[1]} response`,
         reasoning: `logcat: ${line.trim()}`,
       });
       continue;

@@ -109,13 +109,34 @@ describe('scanLogcat extended patterns', () => {
     expect(out[0]).toMatchObject({ category: 'D', severity: 'low' });
   });
 
-  it('flags HTTP 5xx mentions on URLs as B/med', () => {
-    const out = scanLogcat([
-      'W OkHttp: 503 Service Unavailable https://api.example.com/v1/routes',
+  it('flags HTTP 5xx with explicit HTTP context as B/med', () => {
+    const ok1 = scanLogcat(['W OkHttp: 503 https://api.example.com/v1/routes']);
+    expect(ok1).toHaveLength(1);
+    expect(ok1[0].summary).toContain('503');
+    expect(ok1[0].summary).toContain('https://api.example.com/v1/routes');
+
+    const ok2 = scanLogcat(['HTTP/1.1 502 Bad Gateway']);
+    expect(ok2).toHaveLength(1);
+    expect(ok2[0].summary).toContain('502');
+
+    const ok3 = scanLogcat(['Got 503 Service Unavailable from upstream']);
+    expect(ok3).toHaveLength(1);
+    expect(ok3[0].summary).toContain('503');
+  });
+
+  it('does NOT flag PID columns or process IDs that happen to be 5xx', () => {
+    const fp1 = scanLogcat([
+      '04-27 11:49:05.438   538   568 I CredManSysServiceImpl: ConstructedFor: com.google.android.gms/.auth.api',
     ]);
-    expect(out).toHaveLength(1);
-    expect(out[0]).toMatchObject({ category: 'B', severity: 'med' });
-    expect(out[0].summary).toContain('503');
+    expect(fp1).toEqual([]);
+    const fp2 = scanLogcat([
+      'W ProcessStats: Tracking association com.google.android.gms.persistent/10128 BTop #3229',
+    ]);
+    expect(fp2).toEqual([]);
+    const fp3 = scanLogcat([
+      'I ActivityManager: Start proc 521:com.example.app for service ...',
+    ]);
+    expect(fp3).toEqual([]);
   });
 });
 
